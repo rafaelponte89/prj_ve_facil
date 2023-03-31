@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Selecao Arquivo</h1>
+
+<div class="row container">
+    <div class="container">
+        <div class="row-cols-12">
+            <form action="{% url 'index' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form }}
+                <input type="submit" value="Adicionar Arquivo" />
+            </form>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <h2>Arquivos Salvos</h2>
+    <table>
+        {% for arquivo in arquivos %}
+        <tr>
+            <!-- <td><a href="media/{{arquivo.arquivo}}">{{arquivo.arquivo}}</a></td> -->
+
+            <td><a href="{% url 'get_file' arquivo %}">{{arquivo}}</a> : {{ arquivo.arquivo}}</td>
+
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+
+{% endblock content %}

@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container">
+    <h1>Informações do Arquivo Carregado</h1>
+    <label>Nome do arquivo: <strong>{{arquivo}}</strong></label> <br>
+
+    <label>Caminho do arquivo: {{caminho}}</label> <br>
+    <label>Número de Linhas: {{linhas}}</label> <br>
+    <label>Número de Colunas: {{colunas|length}}</label><br>
+
+    <div class="mt-5">
+        <form method="get" action="">
+            <table>
+                <tr>
+                    <th>Colunas do Arquivo</th>
+                    <th>Tipo</th>
+                    </th>
+                </tr>
+                {% for c,t in colunas.items %}
+                <tr>
+                    <td><input type="checkbox" class="form-check-input" id="{{c}}" name="{{c}}" value="{{c}}">{{c}}
+                    </td>
+
+                    <td>
+
+                        <option value="" selected>{{t}}</option>
+
+                    </td>
+                </tr>
+                <!-- <input type="checkbox" class="form-check-input" id="{{c}}" name="{{c}}"
+                            value="{{c}}">{{c}} -->
+                {% endfor %}
+            </table>
+
+            <input type="submit">
+        </form>
+    </div>
+    <div id="exemplo">
+
+    </div>
+
+    <script type="text/javascript">
+        function htmlDecode(input) {
+            var doc = new DOMParser().parseFromString(input, "text/html");
+            return doc.documentElement.textContent;
+        }
+        // var a = "{{tabela}}";
+        // a.replace('&gt','<')
+        // console.log(a);
+
+
+
+        const exemplo = document.getElementById("exemplo");
+        exemplo.innerHTML = htmlDecode("{{ tabela }}");
+
+        document.querySelector('.dataframe').classList.add("table");
+        document.querySelector('.dataframe').classList.add("table-bordered");
+        document.querySelector('.dataframe').classList.add("centered");
+        document.querySelector('.dataframe').classList.add("table-hover");
+        document.querySelector(".dataframe").classList.add("table-responsive-sm");
+        document.querySelector(".dataframe").classList.add("justify-content-center");
+        document.querySelector(".dataframe").classList.remove("dataframe");
+        console.log(dtTable);
+    </script>
+
+
+</div>
+
+{% endblock content %}
