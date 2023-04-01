@@ -10,6 +10,12 @@ from bs4 import BeautifulSoup
 import html.parser
 # Create your views here.
 
+# def set_cols(request, cols):
+   
+#     valor = request.GET["form"]
+#     print(cols)
+#     return index(request)
+
 # Formulário para adicionar arquivos 
 def frmAddArquivo(request):
     if request.method == "POST":
@@ -41,66 +47,63 @@ def get_file_path(name_arquivo):
     arquivo = Arquivos.objects.get(nom_arquivo=name_arquivo)
     
     return arquivo.arquivo.path
+
+def drop_cols(cols):
+    for col in cols:
+        if col not in cols:
+            dataframe.drop(col)
+    
+    print(dataframe.head(5))
     
 # efetua a leitura de um arquivo
 def get_file(request, arquivo):
    
     global dataframe
-     
+  
+    
     try:
         caminho = get_file_path(arquivo)
         colunas_tipos = {}
     
-        dataframe = pd.read_csv(caminho,sep = '[:,|_;]',engine='python')
+        dataframe = pd.read_csv(caminho,sep = '[:,|;]',engine='python')
+        
+       
         
         colunas = list(dataframe.columns.values.tolist())
         linhas = len(dataframe.index)
-        
         tipos = dataframe.dtypes.to_list()
-        # print(dataframe)
+        
         i = 0
-        # print(colunas)
         for tipo in tipos:
-            if tipo == 'int64':
-                tipos[i] = 'Número Inteiro'
-            elif tipo == 'object':
-                tipos[i] = 'Objeto'
-            elif tipo == 'float64':
-                tipos[i] = 'Número Decimal'
-                
+            tipos[i] = tipo
             i = i + 1
+            
         for i in range(len(colunas)):
             colunas_tipos[colunas[i]] = tipos[i]
         
-        # print(colunas_tipos)
-       
     except FileNotFoundError:
        print('Arquivo não encontrado')
        return redirect('index')
-   
-    outra = []
-    # for i in range(linhas):
-    #     outra.append(dataframe.loc[i].to_list())    
-        
-    # for l in outra:
-    #     print(l)
+    
+    for col in colunas_tipos.keys():
+        if col not in request.POST:
+             dataframe = dataframe.drop(columns=[col])
+  
+    
     html_tabela = dataframe.head(10).to_html().encode('utf-8')
-   
+    json_tabela = dataframe.head(5).to_json()
 
     context = {
         'colunas': colunas_tipos,
         'linhas': linhas,
         'arquivo': arquivo,
         'caminho': caminho,
-        'tabela': html_tabela
+        'tabela': html_tabela,
+        'jtabela': json_tabela
     }
-    # dados = dataframe.to_numpy()
-    # print(dataframe[["codigo.1","ocorrencia2"]].value_counts())
-    # print(dataframe.head(10))
     
+    # print(json_tabela)
     
-  
-   
     
     return render(request, 'analise.html', context)
 

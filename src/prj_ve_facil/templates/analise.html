@@ -11,7 +11,9 @@
     <label>Número de Colunas: {{colunas|length}}</label><br>
 
     <div class="mt-5">
-        <form method="get" action="">
+
+        <form name="form" id="form" method="post" action="" role="form">
+            {% csrf_token %}
             <table>
                 <tr>
                     <th>Colunas do Arquivo</th>
@@ -41,27 +43,25 @@
 
     </div>
 
+
     <script type="text/javascript">
         function htmlDecode(input) {
             var doc = new DOMParser().parseFromString(input, "text/html");
             return doc.documentElement.textContent;
         }
-        // var a = "{{tabela}}";
-        // a.replace('&gt','<')
-        // console.log(a);
-
-
 
         const exemplo = document.getElementById("exemplo");
-        exemplo.innerHTML = htmlDecode("{{ tabela }}");
+        exemplo.innerHTML = htmlDecode("{{ tabela }}").replace("b'", "");
 
-        document.querySelector('.dataframe').classList.add("table");
-        document.querySelector('.dataframe').classList.add("table-bordered");
-        document.querySelector('.dataframe').classList.add("centered");
-        document.querySelector('.dataframe').classList.add("table-hover");
-        document.querySelector(".dataframe").classList.add("table-responsive-sm");
-        document.querySelector(".dataframe").classList.add("justify-content-center");
-        document.querySelector(".dataframe").classList.remove("dataframe");
+        window.onload = () => {
+            document.querySelector('.dataframe').classList.add("table");
+            document.querySelector('.dataframe').classList.add("table-bordered");
+            document.querySelector('.dataframe').classList.add("centered");
+            document.querySelector('.dataframe').classList.add("table-hover");
+            document.querySelector(".dataframe").classList.add("table-responsive-sm");
+            document.querySelector(".dataframe").classList.add("justify-content-center");
+        }
+        // document.querySelector(".dataframe").classList.remove("dataframe");
         console.log(dtTable);
     </script>
 
