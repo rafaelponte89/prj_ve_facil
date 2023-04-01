@@ -80,18 +80,20 @@ def get_file(request, arquivo):
             
         for i in range(len(colunas)):
             colunas_tipos[colunas[i]] = tipos[i]
+       
+        if request.POST:
+            for col in colunas_tipos.keys():
+                if col not in request.POST:
+                    dataframe = dataframe.drop(columns=[col])
+            
+             
+        html_tabela = dataframe.head(10).to_html().encode('utf-8')
+        json_tabela = dataframe.head(5).to_json()
         
     except FileNotFoundError:
        print('Arquivo não encontrado')
        return redirect('index')
     
-    for col in colunas_tipos.keys():
-        if col not in request.POST:
-             dataframe = dataframe.drop(columns=[col])
-  
-    
-    html_tabela = dataframe.head(10).to_html().encode('utf-8')
-    json_tabela = dataframe.head(5).to_json()
 
     context = {
         'colunas': colunas_tipos,
