@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
 
 <div class="container">
     <h1>Informações do Arquivo Carregado</h1>
@@ -9,42 +11,195 @@
     <label>Caminho do arquivo: {{caminho}}</label> <br>
     <label>Número de Linhas: {{linhas}}</label> <br>
     <label>Número de Colunas: {{colunas|length}}</label><br>
+    <div class="row mt-5">
+        <div class="col-4">
+            <form name="form" id="form" method="get" role="form">
+                {% csrf_token %}
+                <table>
+                    <tr>
+                        <th>Colunas</th>
+                        <th>Tipo</th>
+                        <th>Agrupar</th>
 
-    <div class="mt-5">
+                    </tr>
+                    {% for c,t in colunas.items %}
+                    <tr>
+                        <td><input type="checkbox" class="form-check-input coluna" id="{{c}}" name="{{c}}"
+                                value="{{c}}">
+                            <label for="{{c}}">{{c}}</label>
+                        </td>
 
-        <form name="form" id="form" method="post" action="" role="form">
-            {% csrf_token %}
-            <table>
-                <tr>
-                    <th>Colunas do Arquivo</th>
-                    <th>Tipo</th>
-                    </th>
-                </tr>
-                {% for c,t in colunas.items %}
-                <tr>
-                    <td><input type="checkbox" class="form-check-input" id="{{c}}" name="{{c}}" value="{{c}}">{{c}}
-                    </td>
+                        <td>
 
-                    <td>
+                            <option value="" selected>{{t}}</option>
 
-                        <option value="" selected>{{t}}</option>
+                        </td>
 
-                    </td>
-                </tr>
-                <!-- <input type="checkbox" class="form-check-input" id="{{c}}" name="{{c}}"
-                            value="{{c}}">{{c}} -->
-                {% endfor %}
-            </table>
+                        <td><input type="checkbox" class="form-check-input agrupa" id="ag{{c}}" name="ag{{c}}"
+                                value="{{c}}">
+                            <label for="ag{{c}}">{{c}}</label>
+                        </td>
+                    </tr>
 
-            <input type="submit">
-        </form>
+                    {% endfor %}
+                </table>
+
+
+            </form>
+
+
+        </div>
+        <div class="col-8">
+            <div>
+                <canvas id="myChart"></canvas>
+            </div>
+
+
+            <script type="text/javascript">
+
+
+                //Selecionar e agrupar colunas via javascript
+
+                //https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Global_Objects/Array
+                const agrupa = document.getElementsByClassName("agrupa");
+
+                var ls_agrupa = [];
+
+                for (let i = 0; i < agrupa.length; i++) {
+                    agrupa[i].addEventListener('change', function () {
+                        if (agrupa[i].checked) {
+                            agrupa[i].checked = true;
+
+                            console.log("check");
+                            ls_agrupa.push(agrupa[i].value)
+
+                        }
+                        else {
+                            agrupa[i].checked = false;
+                            let pos = ls_agrupa.indexOf(agrupa[i].value)
+                            console.log(pos);
+                            ls_agrupa.splice(pos, 1);
+                            console.log("uncheck");
+                        }
+                        console.log(ls_agrupa);
+                    });
+                }
+
+                var ls_col = [];
+                const selcol = document.getElementsByClassName("coluna");
+                for (let i = 0; i < agrupa.length; i++) {
+                    selcol[i].addEventListener('change', function () {
+                        if (selcol[i].checked) {
+                            selcol[i].checked = true;
+
+                            console.log("check");
+                            ls_col.push(selcol[i].value)
+
+                        }
+                        else {
+                            selcol[i].checked = false;
+                            let pos = ls_col.indexOf(selcol[i].value)
+                            console.log(pos);
+                            ls_col.splice(pos, 1);
+                            console.log("uncheck");
+                        }
+                        console.log(ls_col);
+                    });
+                }
+
+
+                function sendAjax() {
+                    $.ajax({
+                        url: "{% url 'get_file' arquivo%}",
+                        dataType: "json",
+                        type: "GET",
+                        data: {
+                            "ls_agrupar": ls_agrupa,
+                            "ls_col": ls_col,
+                        },
+                        success: (data) => {
+                         
+                            $("#exemplo").html(data);
+                            $(".dataframe").addClass("table");
+                            $(".dataframe").addClass("table-bordered");
+                            $(".dataframe").addClass("centered");
+                            $(".dataframe").addClass("table-hover");
+                            $(".dataframe").addClass("table-responsive-sm");
+                        }
+
+
+                    })
+                  
+                }
+
+                $(".coluna").change(() => sendAjax());
+                $(".agrupa").change(() => sendAjax());
+
+            </script>
+
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+            <script>
+
+                const labels = ['Janeiro', 'Fevereiro'];
+
+                const ctx = document.getElementById('myChart');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+
+                                label: 'Janeiro',
+                                data: [65, 59],
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.2)',
+
+                                ],
+                                borderColor: [
+                                    'rgb(255, 99, 132)',
+
+                                ],
+                                borderWidth: 1,
+                            },
+                            // {
+                            //     label: 'Fevereiro',
+                            //     data: [12, 15],
+                            //     backgroundColor: [
+
+                            //         'rgba(255, 159, 64, 0.2)',
+
+                            //     ],
+                            //     borderColor: [
+
+                            //         'rgb(255, 159, 64)',
+
+                            //     ],
+
+                            //     borderWidth: 1,
+                            // }
+                        ]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            </script>
+
+        </div>
+
     </div>
     <div id="exemplo">
 
     </div>
 
-
-    <script type="text/javascript">
+    <!-- <script type="text/javascript">
         function htmlDecode(input) {
             var doc = new DOMParser().parseFromString(input, "text/html");
             return doc.documentElement.textContent;
@@ -52,18 +207,18 @@
 
         const exemplo = document.getElementById("exemplo");
         exemplo.innerHTML = htmlDecode("{{ tabela }}").replace("b'", "");
-
-        window.onload = () => {
-            document.querySelector('.dataframe').classList.add("table");
-            document.querySelector('.dataframe').classList.add("table-bordered");
-            document.querySelector('.dataframe').classList.add("centered");
-            document.querySelector('.dataframe').classList.add("table-hover");
-            document.querySelector(".dataframe").classList.add("table-responsive-sm");
-            document.querySelector(".dataframe").classList.add("justify-content-center");
+        function formatarTabela() {
+            window.onload = () => {
+                document.querySelector('.dataframe').classList.add("table");
+                document.querySelector('.dataframe').classList.add("table-bordered");
+                document.querySelector('.dataframe').classList.add("centered");
+                document.querySelector('.dataframe').classList.add("table-hover");
+                document.querySelector(".dataframe").classList.add("table-responsive-sm");
+            }
         }
-        // document.querySelector(".dataframe").classList.remove("dataframe");
-        console.log(dtTable);
-    </script>
+    </script> -->
+
+
 
 
 </div>

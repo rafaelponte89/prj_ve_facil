@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from .forms import formArquivo
 
+from django.http import JsonResponse, HttpRequest
+
 
 import pandas as pd
 import numpy as np
@@ -10,11 +12,6 @@ from bs4 import BeautifulSoup
 import html.parser
 # Create your views here.
 
-# def set_cols(request, cols):
-   
-#     valor = request.GET["form"]
-#     print(cols)
-#     return index(request)
 
 # Formulário para adicionar arquivos 
 def frmAddArquivo(request):
@@ -48,26 +45,22 @@ def get_file_path(name_arquivo):
     
     return arquivo.arquivo.path
 
-def drop_cols(cols):
-    for col in cols:
-        if col not in cols:
-            dataframe.drop(col)
-    
-    print(dataframe.head(5))
+
+
     
 # efetua a leitura de um arquivo
 def get_file(request, arquivo):
    
     global dataframe
   
-    
     try:
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        print("ajax",is_ajax)
         caminho = get_file_path(arquivo)
         colunas_tipos = {}
     
-        dataframe = pd.read_csv(caminho,sep = '[:,|;]',engine='python')
+        dataframe = pd.read_csv(caminho,sep = '[:,|;]',engine='python', index_col=False)
         
-       
         
         colunas = list(dataframe.columns.values.tolist())
         linhas = len(dataframe.index)
@@ -80,40 +73,76 @@ def get_file(request, arquivo):
             
         for i in range(len(colunas)):
             colunas_tipos[colunas[i]] = tipos[i]
-       
-        if request.POST:
-            for col in colunas_tipos.keys():
-                if col not in request.POST:
-                    dataframe = dataframe.drop(columns=[col])
-            
+        
+        if is_ajax:
+            if request.method == 'GET':
+                cols = request.GET.getlist("ls_col[]")
+                agrupar = request.GET.getlist("ls_agrupar[]")
+
+                dataframe = dataframe[cols]
+                print(dataframe)
+                al = []
+                if len(agrupar):
+                    for ag in agrupar:
+                        al.append(ag)
+                        if ag in cols:
+                            dataframe = dataframe.groupby(al).count()
+                
+                tabela = dataframe.to_html()
+                print(al)
+                return JsonResponse(tabela, safe=False)
+        # agrupar = []
+        # if request.GET:
+        #     agrupar = request.GET.getlist("ls_agrupar[]")
+        #     cols = request.GET.getlist("ls_col[]")
+        #     if len(cols):
+        #         dataframe = dataframe[cols]
+          
+        
              
-        html_tabela = dataframe.head(10).to_html().encode('utf-8')
-        json_tabela = dataframe.head(5).to_json()
+        # html_tabela = dataframe[(dataframe["continent"] == "Africa") & (dataframe["continent"] == "Asia")].head(10).to_html().encode('utf-8')
+
+        # dataframe= dataframe[(dataframe["continent"] == "Africa") | (dataframe["continent"] == "Asia")]
+    
+        # if len(agrupar):
+        #     dataframe = dataframe.groupby(agrupar).count()
+        #     print("agrupou")
+            
+            
+       
         
     except FileNotFoundError:
        print('Arquivo não encontrado')
        return redirect('index')
+   
+    dataframe = dataframe.head(1)
+    html_tabela = return_html(dataframe)
+  
     
-
     context = {
         'colunas': colunas_tipos,
         'linhas': linhas,
         'arquivo': arquivo,
         'caminho': caminho,
-        'tabela': html_tabela,
-        'jtabela': json_tabela
-    }
-    
-    # print(json_tabela)
-    
+        'tabela': html_tabela
+        
+    }    
     
     return render(request, 'analise.html', context)
+
+
+    
+
 
 # Lista todos os arquivos que estão salvos no banco
 def get_all_files():
     arquivos = Arquivos.objects.all()    
     
     return arquivos
+
+def return_html(object_df):
+    
+    return object_df.to_html().encode('utf-8')
     
   
     
