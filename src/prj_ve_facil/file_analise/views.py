@@ -48,6 +48,7 @@ def get_file_path(name_arquivo):
 
 
     
+    
 # efetua a leitura de um arquivo
 def get_file(request, arquivo):
    
@@ -56,10 +57,11 @@ def get_file(request, arquivo):
     try:
         is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
         print("ajax",is_ajax)
+
         caminho = get_file_path(arquivo)
         colunas_tipos = {}
     
-        dataframe = pd.read_csv(caminho,sep = '[:,|;]',engine='python', index_col=False)
+        dataframe = pd.read_csv(caminho,sep = '[:,|;]',engine='python').head(30)
         
         
         colunas = list(dataframe.columns.values.tolist())
@@ -76,20 +78,32 @@ def get_file(request, arquivo):
         
         if is_ajax:
             if request.method == 'GET':
+                
                 cols = request.GET.getlist("ls_col[]")
                 agrupar = request.GET.getlist("ls_agrupar[]")
-
+                op = request.GET.get("sel_op")
+                
                 dataframe = dataframe[cols]
-                print(dataframe)
-                al = []
+               
+                cols_agrup = []
                 if len(agrupar):
                     for ag in agrupar:
-                        al.append(ag)
                         if ag in cols:
-                            dataframe = dataframe.groupby(al).count()
-                
+                            cols_agrup.append(ag)
+                    if op == "contar":
+                        dataframe = dataframe.groupby(cols_agrup).count()
+                    elif op == "somar":
+                        dataframe = dataframe.groupby(cols_agrup).sum()
+                    elif op == "media":
+                        dataframe = dataframe.groupby(cols_agrup).mean()
+                    elif op == "desvio":
+                        dataframe = dataframe.groupby(cols_agrup).std()
+                            
+                print(dataframe)
+                print(type(dataframe))
                 tabela = dataframe.to_html()
-                print(al)
+                # tabela = dataframe.to_json()
+             
                 return JsonResponse(tabela, safe=False)
         # agrupar = []
         # if request.GET:
@@ -114,9 +128,7 @@ def get_file(request, arquivo):
     except FileNotFoundError:
        print('Arquivo não encontrado')
        return redirect('index')
-   
-    dataframe = dataframe.head(1)
-    html_tabela = return_html(dataframe)
+
   
     
     context = {
@@ -124,14 +136,38 @@ def get_file(request, arquivo):
         'linhas': linhas,
         'arquivo': arquivo,
         'caminho': caminho,
-        'tabela': html_tabela
         
     }    
     
     return render(request, 'analise.html', context)
 
 
+def transform(operacao):
+    op, col = operacao.split("_")
+    series = None
+    if op == "contar":
+        series = dataframe.groupby(col).value_counts()
+    elif op == "somar":
+        series = dataframe.groupby(col).sum()
+    elif op == "media":
+        series = dataframe.groupby(col).mean()
+    elif op == "desvio":
+        series = dataframe.groupby(col).std()
+        
+    return series
+
+def transform_2(op, cols):
     
+    if op == "contar":
+        dataframe = dataframe.groupby(cols).value_counts()
+    elif op == "somar":
+        dataframe = dataframe.groupby(cols).sum()
+    elif op == "media":
+        dataframe = dataframe.groupby(cols).mean()
+    elif op == "desvio":
+        dataframe = dataframe.groupby(cols).std()
+    print(dataframe)
+    return dataframe
 
 
 # Lista todos os arquivos que estão salvos no banco

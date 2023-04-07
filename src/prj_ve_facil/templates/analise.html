@@ -21,6 +21,7 @@
                         <th>Tipo</th>
                         <th>Agrupar</th>
 
+
                     </tr>
                     {% for c,t in colunas.items %}
                     <tr>
@@ -39,9 +40,40 @@
                                 value="{{c}}">
                             <label for="ag{{c}}">{{c}}</label>
                         </td>
+                        <td>
+
+                            <!-- <select name="select{{c}}" id="select{{c}}" class="operacao">
+                                <option value="None_{{c}}" selected>Selecione</option>
+                                {% if t == 'object' %}
+
+                                <option value="contar_{{c}}">Contar</option>
+                                {% else %}
+                                <option value="contar_{{c}}">Contar</option>
+                                <option value="somar_{{c}}">Somar</option>
+                                <option value="media_{{c}}">Média</option>
+                                <option value="desvio_{{c}}">Desvio</option>
+                                <option value="projetar_{{c}}">Projetar</option>
+                                {% endif %}
+                              
+                            </select> -->
+                        </td>
                     </tr>
 
                     {% endfor %}
+                    <label for="selectoperacao">Operação</label>
+                    <select name="selectoperacao" id="selectoperacao" class="operacao">
+                        <option value="None" selected>Selecione</option>
+
+
+                        <option value="contar">Contar</option>
+
+                        <option value="somar">Somar</option>
+                        <option value="media">Média</option>
+                        <option value="desvio">Desvio</option>
+
+
+
+                    </select>
                 </table>
 
 
@@ -87,7 +119,7 @@
 
                 var ls_col = [];
                 const selcol = document.getElementsByClassName("coluna");
-                for (let i = 0; i < agrupa.length; i++) {
+                for (let i = 0; i < selcol.length; i++) {
                     selcol[i].addEventListener('change', function () {
                         if (selcol[i].checked) {
                             selcol[i].checked = true;
@@ -107,6 +139,21 @@
                     });
                 }
 
+                // const selop = document.getElementsByClassName("operacao");
+                const selop = document.getElementById("selectoperacao");
+
+                let op = "";
+                selop.addEventListener('change', () => {
+                    op = selop.value;
+                })
+                //         op = selop[i].value;
+                // for (let i = 0; i < selop.length; i ++) {
+                //     selop[i].addEventListener('change', () => {
+                //         op = selop[i].value;
+
+                //     });
+                // }
+
 
                 function sendAjax() {
                     $.ajax({
@@ -116,9 +163,11 @@
                         data: {
                             "ls_agrupar": ls_agrupa,
                             "ls_col": ls_col,
+                            "sel_op": op
+
                         },
                         success: (data) => {
-                         
+                            
                             $("#exemplo").html(data);
                             $(".dataframe").addClass("table");
                             $(".dataframe").addClass("table-bordered");
@@ -129,11 +178,14 @@
 
 
                     })
-                  
+
                 }
 
                 $(".coluna").change(() => sendAjax());
-                $(".agrupa").change(() => sendAjax());
+                // $(".agrupa").change(() => sendAjax());
+                $(".operacao").change(() => sendAjax());
+                $("#selectoperacao").change(() => sendAjax());
+
 
             </script>
 
