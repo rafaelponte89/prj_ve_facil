@@ -20,8 +20,6 @@
                         <th>Colunas</th>
                         <th>Tipo</th>
                         <th>Agrupar</th>
-
-
                     </tr>
                     {% for c,t in colunas.items %}
                     <tr>
@@ -78,15 +76,14 @@
 
 
             </form>
-
-
         </div>
+
         <div class="col-8">
             <div>
                 <canvas id="myChart"></canvas>
             </div>
 
-
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
             <script type="text/javascript">
 
 
@@ -102,7 +99,7 @@
                         if (agrupa[i].checked) {
                             agrupa[i].checked = true;
 
-                            console.log("check");
+                            // console.log("check");
                             ls_agrupa.push(agrupa[i].value)
 
                         }
@@ -111,9 +108,9 @@
                             let pos = ls_agrupa.indexOf(agrupa[i].value)
                             console.log(pos);
                             ls_agrupa.splice(pos, 1);
-                            console.log("uncheck");
+                            // console.log("uncheck");
                         }
-                        console.log(ls_agrupa);
+                        // console.log(ls_agrupa);
                     });
                 }
 
@@ -124,7 +121,7 @@
                         if (selcol[i].checked) {
                             selcol[i].checked = true;
 
-                            console.log("check");
+                            // console.log("check");
                             ls_col.push(selcol[i].value)
 
                         }
@@ -133,9 +130,9 @@
                             let pos = ls_col.indexOf(selcol[i].value)
                             console.log(pos);
                             ls_col.splice(pos, 1);
-                            console.log("uncheck");
+                            // console.log("uncheck");
                         }
-                        console.log(ls_col);
+                        // console.log(ls_col);
                     });
                 }
 
@@ -167,8 +164,14 @@
 
                         },
                         success: (data) => {
-                            
+                            var listaContinentes = [];
+                            var listaQuantidadePaises = [];
+                            var objJson = JSON.parse(data);
+
+
                             $("#exemplo").html(data);
+
+                            // $("#exemplo").html(data);
                             $(".dataframe").addClass("table");
                             $(".dataframe").addClass("table-bordered");
                             $(".dataframe").addClass("centered");
@@ -180,68 +183,119 @@
                     })
 
                 }
+                
+                function visAjax() {
+                    $.ajax({
+                        url: "{% url 'get_file' arquivo%}",
+                        dataType: "json",
+                        type: "GET",
+                        data: {
+                            "ls_agrupar": ls_agrupa,
+                            "ls_col": ls_col,
+                            "sel_op": op
+
+                        },
+                        success: (data) => {
+                            var listaContinentes = [];
+                            var listaQuantidadePaises = [];
+                            var objJson = JSON.parse(data);
+                            var x = []
+                            var y = []
+                            for (var [key, value] of Object.entries(objJson)) {
+                                for (var [key, value] of Object.entries(value)) {
+                                    x.push(key)
+                                    y.push(value)
+
+                                }
+                            }
+                            console.log(x)
+                            console.log(y)
+                           
+
+                            var chartExist = Chart.getChart("myChart");
+                            if (chartExist != undefined)
+                                chartExist.destroy();
+                            
+                            get_chart(x,y);
+                            $("#exemplo").html(data);
+
+                            // $("#exemplo").html(data);
+                            $(".dataframe").addClass("table");
+                            $(".dataframe").addClass("table-bordered");
+                            $(".dataframe").addClass("centered");
+                            $(".dataframe").addClass("table-hover");
+                            $(".dataframe").addClass("table-responsive-sm");
+                        }
+                    })
+
+                }
 
                 $(".coluna").change(() => sendAjax());
+
                 // $(".agrupa").change(() => sendAjax());
-                $(".operacao").change(() => sendAjax());
-                $("#selectoperacao").change(() => sendAjax());
+                // $(".operacao").change(() => sendAjax());
+                $("#selectoperacao").change(() => visAjax());
 
 
             </script>
 
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            
 
 
             <script>
+                function get_chart(x, y) {
+                    const labels = x;
 
-                const labels = ['Janeiro', 'Fevereiro'];
+                    const ctx = document.getElementById('myChart');
+                    var mychart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [
+                                {
 
-                const ctx = document.getElementById('myChart');
-                new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            {
+                                    label: 'Titulo',
+                                    data: y,
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.2)',
+                    
 
-                                label: 'Janeiro',
-                                data: [65, 59],
-                                backgroundColor: [
-                                    'rgba(255, 99, 132, 0.2)',
+                                    ],
+                                    borderColor: [
+                                        'rgb(255, 99, 132)',
 
-                                ],
-                                borderColor: [
-                                    'rgb(255, 99, 132)',
+                                    ],
+                                    borderWidth: 1,
+                                },
+                                // {
+                                //     label: 'Fevereiro',
+                                //     data: [12, 15],
+                                //     backgroundColor: [
 
-                                ],
-                                borderWidth: 1,
-                            },
-                            // {
-                            //     label: 'Fevereiro',
-                            //     data: [12, 15],
-                            //     backgroundColor: [
+                                //         'rgba(255, 159, 64, 0.2)',
 
-                            //         'rgba(255, 159, 64, 0.2)',
+                                //     ],
+                                //     borderColor: [
 
-                            //     ],
-                            //     borderColor: [
+                                //         'rgb(255, 159, 64)',
 
-                            //         'rgb(255, 159, 64)',
+                                //     ],
 
-                            //     ],
-
-                            //     borderWidth: 1,
-                            // }
-                        ]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true
+                                //     borderWidth: 1,
+                                // }
+                            ]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
                             }
                         }
-                    }
-                });
+                    });
+                   
+                    return mychart;
+                }
             </script>
 
         </div>

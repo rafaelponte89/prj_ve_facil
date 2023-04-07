@@ -12,6 +12,7 @@ from bs4 import BeautifulSoup
 import html.parser
 # Create your views here.
 
+global dataframe
 
 # Formulário para adicionar arquivos 
 def frmAddArquivo(request):
@@ -45,24 +46,22 @@ def get_file_path(name_arquivo):
     
     return arquivo.arquivo.path
 
-
-
+def get_file_2(request, arquivo):
     
-    
-# efetua a leitura de um arquivo
-def get_file(request, arquivo):
-   
-    global dataframe
-  
     try:
         is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
         print("ajax",is_ajax)
+        tabela = ''
 
         caminho = get_file_path(arquivo)
         colunas_tipos = {}
     
         dataframe = pd.read_csv(caminho,sep = '[:,|;]',engine='python').head(30)
         
+        # dataframe_chart = dataframe.copy()
+        
+        # dataframe_chart["continent"] = pd.Series(list(range(len(dataframe_chart))))
+        # print("dataframe_chart\n", type(dataframe_chart))
         
         colunas = list(dataframe.columns.values.tolist())
         linhas = len(dataframe.index)
@@ -99,11 +98,89 @@ def get_file(request, arquivo):
                     elif op == "desvio":
                         dataframe = dataframe.groupby(cols_agrup).std()
                             
-                print(dataframe)
-                print(type(dataframe))
+              
+                tabela = dataframe.to_json()
+                
+                
+                print(tabela)
+                return JsonResponse(tabela, safe=False)
+      
+            
+       
+        
+    except FileNotFoundError:
+       print('Arquivo não encontrado')
+       return redirect('index')
+
+  
+    
+    context = {
+        'colunas': colunas_tipos,
+        'linhas': linhas,
+        'arquivo': arquivo,
+        'caminho': caminho,
+        'tabela': tabela
+        
+    }    
+    
+    return render(request, 'analise.html', context)
+
+   
+
+    
+# efetua a leitura de um arquivo
+def get_file(request, arquivo):
+     
+     
+    try:
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        print("ajax",is_ajax)
+
+        caminho = get_file_path(arquivo)
+        colunas_tipos = {}
+    
+        dataframe = pd.read_csv(caminho,sep = '[:,|;]',engine='python').head(30)
+        
+        colunas = list(dataframe.columns.values.tolist())
+        linhas = len(dataframe.index)
+        tipos = dataframe.dtypes.to_list()
+        
+        i = 0
+        for tipo in tipos:
+            tipos[i] = tipo
+            i = i + 1
+            
+        for i in range(len(colunas)):
+            colunas_tipos[colunas[i]] = tipos[i]
+        
+        if is_ajax:
+            if request.method == 'GET':
+                
+                cols = request.GET.getlist("ls_col[]")
+                agrupar = request.GET.getlist("ls_agrupar[]")
+                op = request.GET.get("sel_op")
+                
+                dataframe = dataframe[cols]
+               
+                cols_agrup = []
+                if len(agrupar):
+                    for ag in agrupar:
+                        if ag in cols:
+                            cols_agrup.append(ag)
+                    if op == "contar":
+                        dataframe = dataframe.groupby(cols_agrup).count()
+                    elif op == "somar":
+                        dataframe = dataframe.groupby(cols_agrup).sum()
+                    elif op == "media":
+                        dataframe = dataframe.groupby(cols_agrup).mean()
+                    elif op == "desvio":
+                        dataframe = dataframe.groupby(cols_agrup).std()
+                            
+                # print(dataframe)
+                # print(type(dataframe))
                 tabela = dataframe.to_html()
                 # tabela = dataframe.to_json()
-             
+               
                 return JsonResponse(tabela, safe=False)
         # agrupar = []
         # if request.GET:
@@ -168,7 +245,6 @@ def transform_2(op, cols):
         dataframe = dataframe.groupby(cols).std()
     print(dataframe)
     return dataframe
-
 
 # Lista todos os arquivos que estão salvos no banco
 def get_all_files():
