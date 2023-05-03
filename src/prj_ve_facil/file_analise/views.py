@@ -1,15 +1,13 @@
 from django.shortcuts import render, redirect
 from .forms import formArquivo
 
-from django.http import JsonResponse, HttpRequest
-
+from django.http import JsonResponse
 
 import pandas as pd
-import numpy as np
+
 from .models import Arquivos
 from django.contrib import messages
-from bs4 import BeautifulSoup
-import html.parser
+
 # Create your views here.
 
 global dataframe
