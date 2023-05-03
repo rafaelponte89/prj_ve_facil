@@ -2,32 +2,42 @@
 
 {% block content %}
 
-<h1>Selecao Arquivo</h1>
+<h1 class="text-center text-success">Seleção de Arquivo</h1>
 
 <div class="row container">
-    <div class="container">
-        <div class="row-cols-12">
-            <form action="{% url 'index' %}" method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                {{ form }}
-                <input type="submit"  value="Adicionar Arquivo" >
-            </form>
-        </div>
+
+    <div class="col-12">
+        <form action="{% url 'index' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form }}
+
+            <input type="submit" class="btn btn-success mt-2" value="Adicionar Arquivo">
+        </form>
+    </div>
+
+</div>
+<h2 class="text-center text-secondary">Arquivos Salvos</h2>
+<div class="row container">
+
+    <div class="col-12">
+        <table class="table table-hover">
+            {% for arquivo in arquivos %}
+            <tr>
+                <!-- <td><a href="media/{{arquivo.arquivo}}">{{arquivo.arquivo}}</a></td> -->
+
+                <td><a href="{% url 'get_tabela' arquivo %}">{{arquivo}}</a> : {{ arquivo.arquivo}}</td>
+
+            </tr>
+            {% endfor %}
+        </table>
     </div>
 </div>
-<div class="container">
-    <h2>Arquivos Salvos</h2>
-    <table>
-        {% for arquivo in arquivos %}
-        <tr>
-            <!-- <td><a href="media/{{arquivo.arquivo}}">{{arquivo.arquivo}}</a></td> -->
 
-            <td><a href="{% url 'get_file' arquivo %}">{{arquivo}}</a> : {{ arquivo.arquivo}}</td>
-
-        </tr>
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
         {% endfor %}
-    </table>
-</div>
-
-
+</ul>
+{% endif %}
 {% endblock content %}

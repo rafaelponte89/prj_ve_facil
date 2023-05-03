@@ -3,21 +3,26 @@
 
 {% block content %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'config.js' %}"></script>
+<script src="{% static 'chart.js' %}"></script>
+
+
 
 <div class="container">
     <h1>Informações do Arquivo Carregado</h1>
     <label>Nome do arquivo: <strong>{{arquivo}}</strong></label> <br>
-
     <label>Caminho do arquivo: {{caminho}}</label> <br>
-    <label>Número de Linhas: {{linhas}}</label> <br>
+    <label>Número de Linhas: {{linhas_totais}}</label> <br>
     <label>Número de Colunas: {{colunas|length}}</label><br>
     <div class="row mt-5">
-        <div class="col-4">
+        <div class="col-12">
             <form name="form" id="form" method="get" role="form">
                 {% csrf_token %}
                 <table>
                     <tr>
                         <th>Colunas</th>
+                        <!-- <th>Parâmetro</th> -->
                         <th>Tipo</th>
                         <th>Agrupar</th>
                     </tr>
@@ -27,6 +32,8 @@
                                 value="{{c}}">
                             <label for="{{c}}">{{c}}</label>
                         </td>
+                        <!-- <td> <input type="text" class="parametro" id="param{{c}}" name="param{{c}}" size=10 maxlength=30 disabled></td> -->
+
 
                         <td>
 
@@ -58,254 +65,242 @@
                     </tr>
 
                     {% endfor %}
+                    <!-- <div class="row">
+                        <div class="col">
+                            <input type="radio" class="btn-check" name="options-outlined" id="radiocontar"
+                                autocomplete="off" value="contar">
+                            <label class="btn btn-outline-success" for="radiocontar">Contar</label>
+
+                            <input type="radio" class="btn-check" name="options-outlined" id="radiosomar"
+                                autocomplete="off" value="somar">
+                            <label class="btn btn-outline-success" for="radiosomar">Somar</label>
+
+                            <input type="radio" class="btn-check" name="options-outlined" id="radiomedia"
+                                autocomplete="off" value="media">
+                            <label class="btn btn-outline-success" for="radiomedia">Média</label>
+
+                            <input type="radio" class="btn-check" name="options-outlined" id="radiodesvio"
+                                autocomplete="off" value="desvio">
+                            <label class="btn btn-outline-success" for="radiodesvio">Desvio</label>
+                        </div>
+                    </div> -->
+
                     <label for="selectoperacao">Operação</label>
                     <select name="selectoperacao" id="selectoperacao" class="operacao">
                         <option value="None" selected>Selecione</option>
-
-
                         <option value="contar">Contar</option>
-
                         <option value="somar">Somar</option>
                         <option value="media">Média</option>
                         <option value="desvio">Desvio</option>
-
-
-
                     </select>
                 </table>
 
-
             </form>
-        </div>
 
-        <div class="col-8">
+        </div>
+    </div>
+    <div class="row">
+        <div class="cols-md-12">
             <div>
                 <canvas id="myChart"></canvas>
             </div>
-
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-            <script type="text/javascript">
-
-
-                //Selecionar e agrupar colunas via javascript
-
-                //https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Global_Objects/Array
-                const agrupa = document.getElementsByClassName("agrupa");
-
-                var ls_agrupa = [];
-
-                for (let i = 0; i < agrupa.length; i++) {
-                    agrupa[i].addEventListener('change', function () {
-                        if (agrupa[i].checked) {
-                            agrupa[i].checked = true;
-
-                            // console.log("check");
-                            ls_agrupa.push(agrupa[i].value)
-
-                        }
-                        else {
-                            agrupa[i].checked = false;
-                            let pos = ls_agrupa.indexOf(agrupa[i].value)
-                            console.log(pos);
-                            ls_agrupa.splice(pos, 1);
-                            // console.log("uncheck");
-                        }
-                        // console.log(ls_agrupa);
-                    });
-                }
-
-                var ls_col = [];
-                const selcol = document.getElementsByClassName("coluna");
-                for (let i = 0; i < selcol.length; i++) {
-                    selcol[i].addEventListener('change', function () {
-                        if (selcol[i].checked) {
-                            selcol[i].checked = true;
-
-                            // console.log("check");
-                            ls_col.push(selcol[i].value)
-
-                        }
-                        else {
-                            selcol[i].checked = false;
-                            let pos = ls_col.indexOf(selcol[i].value)
-                            console.log(pos);
-                            ls_col.splice(pos, 1);
-                            // console.log("uncheck");
-                        }
-                        // console.log(ls_col);
-                    });
-                }
-
-                // const selop = document.getElementsByClassName("operacao");
-                const selop = document.getElementById("selectoperacao");
-
-                let op = "";
-                selop.addEventListener('change', () => {
-                    op = selop.value;
-                })
-                //         op = selop[i].value;
-                // for (let i = 0; i < selop.length; i ++) {
-                //     selop[i].addEventListener('change', () => {
-                //         op = selop[i].value;
-
-                //     });
-                // }
-
-
-                function sendAjax() {
-                    $.ajax({
-                        url: "{% url 'get_file' arquivo%}",
-                        dataType: "json",
-                        type: "GET",
-                        data: {
-                            "ls_agrupar": ls_agrupa,
-                            "ls_col": ls_col,
-                            "sel_op": op
-
-                        },
-                        success: (data) => {
-                            var listaContinentes = [];
-                            var listaQuantidadePaises = [];
-                            var objJson = JSON.parse(data);
-
-
-                            $("#exemplo").html(data);
-
-                            // $("#exemplo").html(data);
-                            $(".dataframe").addClass("table");
-                            $(".dataframe").addClass("table-bordered");
-                            $(".dataframe").addClass("centered");
-                            $(".dataframe").addClass("table-hover");
-                            $(".dataframe").addClass("table-responsive-sm");
-                        }
-
-
-                    })
-
-                }
-                
-                function visAjax() {
-                    $.ajax({
-                        url: "{% url 'get_file' arquivo%}",
-                        dataType: "json",
-                        type: "GET",
-                        data: {
-                            "ls_agrupar": ls_agrupa,
-                            "ls_col": ls_col,
-                            "sel_op": op
-
-                        },
-                        success: (data) => {
-                            var listaContinentes = [];
-                            var listaQuantidadePaises = [];
-                            var objJson = JSON.parse(data);
-                            var x = []
-                            var y = []
-                            for (var [key, value] of Object.entries(objJson)) {
-                                for (var [key, value] of Object.entries(value)) {
-                                    x.push(key)
-                                    y.push(value)
-
-                                }
-                            }
-                            console.log(x)
-                            console.log(y)
-                           
-
-                            var chartExist = Chart.getChart("myChart");
-                            if (chartExist != undefined)
-                                chartExist.destroy();
-                            
-                            get_chart(x,y);
-                            $("#exemplo").html(data);
-
-                            // $("#exemplo").html(data);
-                            $(".dataframe").addClass("table");
-                            $(".dataframe").addClass("table-bordered");
-                            $(".dataframe").addClass("centered");
-                            $(".dataframe").addClass("table-hover");
-                            $(".dataframe").addClass("table-responsive-sm");
-                        }
-                    })
-
-                }
-
-                $(".coluna").change(() => sendAjax());
-
-                // $(".agrupa").change(() => sendAjax());
-                // $(".operacao").change(() => sendAjax());
-                $("#selectoperacao").change(() => visAjax());
-
-
-            </script>
-
-            
-
-
-            <script>
-                function get_chart(x, y) {
-                    const labels = x;
-
-                    const ctx = document.getElementById('myChart');
-                    var mychart = new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: labels,
-                            datasets: [
-                                {
-
-                                    label: 'Titulo',
-                                    data: y,
-                                    backgroundColor: [
-                                        'rgba(255, 99, 132, 0.2)',
-                    
-
-                                    ],
-                                    borderColor: [
-                                        'rgb(255, 99, 132)',
-
-                                    ],
-                                    borderWidth: 1,
-                                },
-                                // {
-                                //     label: 'Fevereiro',
-                                //     data: [12, 15],
-                                //     backgroundColor: [
-
-                                //         'rgba(255, 159, 64, 0.2)',
-
-                                //     ],
-                                //     borderColor: [
-
-                                //         'rgb(255, 159, 64)',
-
-                                //     ],
-
-                                //     borderWidth: 1,
-                                // }
-                            ]
-                        },
-                        options: {
-                            scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
-                            }
-                        }
-                    });
-                   
-                    return mychart;
-                }
-            </script>
-
         </div>
-
     </div>
-    <div id="exemplo">
-
+    <div>
+        <canvas id="myChart"></canvas>
     </div>
 
-    <!-- <script type="text/javascript">
+
+
+
+    <script type="text/javascript">
+
+        const agrupa = document.getElementsByClassName("agrupa");
+        ls_agrupa = agrupar(agrupa);
+        //Definindo parâmetros...16/04/2023
+        // ls_col = selecionarColunas();
+        var ls_col = [];
+        const selcol = document.getElementsByClassName("coluna");
+        for (let i = 0; i < selcol.length; i++) {
+            selcol[i].addEventListener('change', function () {
+                if (selcol[i].checked) {
+                    selcol[i].checked = true;
+
+                    $("#paramcountry").attr('disabled',false)
+
+                    ls_col.push(selcol[i].value)
+
+
+                }
+                else {
+                     $("#paramcountry").attr('disabled',true)
+                    selcol[i].checked = false;
+                    let pos = ls_col.indexOf(selcol[i].value)
+                    console.log(pos);
+                    ls_col.splice(pos, 1);
+                    // console.log("uncheck");
+                }
+                // console.log(ls_col);
+            });
+        }
+
+        // const selop = document.getElementsByClassName("operacao");
+        const selop = document.getElementById("selectoperacao");
+
+        let op = "";
+        selop.addEventListener('change', () => {
+            op = selop.value;
+        })
+
+        function sendAjax() {
+            $.ajax({
+                url: "{% url 'get_tabela' arquivo%}",
+                type: "GET",
+                data: {
+                    "ls_agrupar": ls_agrupa,
+                    "ls_col": ls_col,
+                    "sel_op": op
+
+                },
+                success: (data) => {
+                    // var listaContinentes = [];
+                    // var listaQuantidadePaises = [];
+                    // var objJson = JSON.parse(data);
+                    $("#tabela").html(data);
+
+                    // $("#tabela").html(data);
+
+                    // $("#exemplo").html(data);
+                    $(".dataframe").addClass("table");
+                    $(".dataframe").addClass("table-bordered");
+                    $(".dataframe").addClass("centered");
+                    $(".dataframe").addClass("table-hover");
+                    $(".dataframe").addClass("table-responsive-sm");
+                }
+            })
+        }
+
+        function visAjax() {
+            $.ajax({
+                url: "{% url 'get_file' arquivo%}",
+                dataType: "json",
+                type: "GET",
+                data: {
+                    "ls_agrupar": ls_agrupa,
+                    "ls_col": ls_col,
+                    "sel_op": op
+                },
+                success: (data) => {
+                    var listaContinentes = [];
+                    var listaQuantidadePaises = [];
+                    var objJson = JSON.parse(data);
+                    var x = []
+                    var y = []
+                    for (var [key, value] of Object.entries(objJson)) {
+                        for (var [key, value] of Object.entries(value)) {
+                            x.push(key)
+                            y.push(value)
+
+                        }
+                    }
+                    console.log(x)
+                    console.log(y)
+
+
+                    var chartExist = Chart.getChart("myChart");
+                    if (chartExist != undefined)
+                        chartExist.destroy();
+
+                    get_chart(x, y);
+
+                }
+            })
+
+        }
+
+        $(".coluna").change(() => sendAjax());
+
+        // $(".agrupa").change(() => sendAjax());
+        // $(".operacao").change(() => sendAjax());
+        $("#selectoperacao").change(() => visAjax());
+
+
+            //     function get_chart(x, y) {
+            //         const labels = x;
+
+            //         const ctx = document.getElementById('myChart');
+            //         var mychart = new Chart(ctx, {
+            //             type: 'bar',
+            //             data: {
+            //                 labels: labels,
+            //                 datasets: [
+            //                     {
+
+            //                         label: 'Titulo',
+            //                         data: y,
+            //                         backgroundColor: [
+            //                             'rgba(255, 99, 132, 0.5)',
+            //                             'rgba(255, 159, 64, 0.5)',
+            //                             'rgba(255, 205, 86, 0.5)',
+            //                             'rgba(75, 192, 192, 0.5)',
+            //                             'rgba(54, 162, 235, 0.5)',
+            //                             'rgba(153, 102, 255, 0.5)',
+            //                             'rgba(201, 203, 207, 0.5)'
+            //                         ],
+            //                         borderColor: [
+            //                             'rgb(255, 99, 132)',
+            //                             'rgb(255, 159, 64)',
+            //                             'rgb(255, 205, 86)',
+            //                             'rgb(75, 192, 192)',
+            //                             'rgb(54, 162, 235)',
+            //                             'rgb(153, 102, 255)',
+            //                             'rgb(201, 203, 207)'
+            //                         ],
+
+            //                         borderWidth: 1,
+            //                     },
+            //                     // {
+            //                     //     label: 'Fevereiro',
+            //                     //     data: [12, 15],
+            //                     //     backgroundColor: [
+
+            //                     //         'rgba(255, 159, 64, 0.2)',
+
+            //                     //     ],
+            //                     //     borderColor: [
+
+            //                     //         'rgb(255, 159, 64)',
+
+            //                     //     ],
+
+            //                     //     borderWidth: 1,
+            //                     // }
+            //                 ]
+            //             },
+            //             options: {
+            //                 scales: {
+            //                     y: {
+            //                         beginAtZero: true
+            //                     }
+            //                 }
+            //             }
+            //         });
+
+            //         return mychart;
+            //     }
+
+            // </script>
+
+
+
+</div>
+
+<h2>Amostra dos Primeiros 30 Registros das Colunas Selecionadas</h2>
+<div id="tabela">
+
+</div>
+
+<!-- <script type="text/javascript">
         function htmlDecode(input) {
             var doc = new DOMParser().parseFromString(input, "text/html");
             return doc.documentElement.textContent;

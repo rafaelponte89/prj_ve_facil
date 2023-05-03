@@ -48,6 +48,7 @@ def get_file_path(name_arquivo):
 
 def get_file_2(request, arquivo):
     
+    
     try:
         is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
         print("ajax",is_ajax)
@@ -56,7 +57,7 @@ def get_file_2(request, arquivo):
         caminho = get_file_path(arquivo)
         colunas_tipos = {}
     
-        dataframe = pd.read_csv(caminho,sep = '[:,|;]',engine='python').head(30)
+        dataframe = pd.read_csv(caminho,sep = '[:,|;]',engine='python')
         
         # dataframe_chart = dataframe.copy()
         
@@ -81,7 +82,7 @@ def get_file_2(request, arquivo):
                 cols = request.GET.getlist("ls_col[]")
                 agrupar = request.GET.getlist("ls_agrupar[]")
                 op = request.GET.get("sel_op")
-                
+               
                 dataframe = dataframe[cols]
                
                 cols_agrup = []
@@ -101,8 +102,6 @@ def get_file_2(request, arquivo):
               
                 tabela = dataframe.to_json()
                 
-                
-                print(tabela)
                 return JsonResponse(tabela, safe=False)
       
             
@@ -110,6 +109,7 @@ def get_file_2(request, arquivo):
         
     except FileNotFoundError:
        print('Arquivo não encontrado')
+       messages.warning(request,"Arquivo não encontrado no caminho!!!")
        return redirect('index')
 
   
@@ -131,7 +131,6 @@ def get_file_2(request, arquivo):
 # efetua a leitura de um arquivo
 def get_file(request, arquivo):
      
-     
     try:
         is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
         print("ajax",is_ajax)
@@ -139,7 +138,9 @@ def get_file(request, arquivo):
         caminho = get_file_path(arquivo)
         colunas_tipos = {}
     
-        dataframe = pd.read_csv(caminho,sep = '[:,|;]',engine='python').head(30)
+        dataframe = pd.read_csv(caminho,sep = '[:,|;]',engine='python')
+        linhas_totais = len(dataframe.index)
+        dataframe = dataframe.head(30)
         
         colunas = list(dataframe.columns.values.tolist())
         linhas = len(dataframe.index)
@@ -162,26 +163,27 @@ def get_file(request, arquivo):
                 
                 dataframe = dataframe[cols]
                
-                cols_agrup = []
-                if len(agrupar):
-                    for ag in agrupar:
-                        if ag in cols:
-                            cols_agrup.append(ag)
-                    if op == "contar":
-                        dataframe = dataframe.groupby(cols_agrup).count()
-                    elif op == "somar":
-                        dataframe = dataframe.groupby(cols_agrup).sum()
-                    elif op == "media":
-                        dataframe = dataframe.groupby(cols_agrup).mean()
-                    elif op == "desvio":
-                        dataframe = dataframe.groupby(cols_agrup).std()
+                # cols_agrup = []
+                # if len(agrupar):
+                #     for ag in agrupar:
+                #         if ag in cols:
+                #             cols_agrup.append(ag)
+                #     if op == "contar":
+                #         dataframe = dataframe.groupby(cols_agrup).count()
+                #     elif op == "somar":
+                #         dataframe = dataframe.groupby(cols_agrup).sum()
+                #     elif op == "media":
+                #         dataframe = dataframe.groupby(cols_agrup).mean()
+                #     elif op == "desvio":
+                #         dataframe = dataframe.groupby(cols_agrup).std()
                             
                 # print(dataframe)
                 # print(type(dataframe))
-                tabela = dataframe.to_html()
+                tabela_html = dataframe.to_html()
+                print(tabela_html)
                 # tabela = dataframe.to_json()
                
-                return JsonResponse(tabela, safe=False)
+                return JsonResponse(tabela_html, safe=False)
         # agrupar = []
         # if request.GET:
         #     agrupar = request.GET.getlist("ls_agrupar[]")
@@ -213,6 +215,7 @@ def get_file(request, arquivo):
         'linhas': linhas,
         'arquivo': arquivo,
         'caminho': caminho,
+        'linhas_totais': linhas_totais
         
     }    
     
