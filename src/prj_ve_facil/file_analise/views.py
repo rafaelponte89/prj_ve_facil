@@ -7,7 +7,7 @@ import pandas as pd
 
 from .models import Arquivos
 from django.contrib import messages
-
+import os
 # Create your views here.
 
 global dataframe
@@ -45,7 +45,6 @@ def get_file_path(name_arquivo):
     return arquivo.arquivo.path
 
 def get_file_2(request, arquivo):
-    
     
     try:
         is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
@@ -203,9 +202,14 @@ def get_file(request, arquivo):
        
         
     except FileNotFoundError:
-       print('Arquivo não encontrado')
-       return redirect('index')
+       print('Arquivo não encontrado***')
+       messages.warning(request,f"!!! Arquivo não encontrado no caminho !!! ({caminho})")
 
+       return redirect('index')
+    except:
+        messages.error(request, f"XXX Erro na estrutura do arquivo XXX ({caminho})","danger")
+        
+        return redirect('index')
   
     
     context = {
@@ -219,7 +223,31 @@ def get_file(request, arquivo):
     
     return render(request, 'analise.html', context)
 
+def del_file(request,id):
+  
+    arquivo = Arquivos.objects.get(pk=id)
+       
+    try:
+        arquivo.delete()
+    except:
+        print("deletou metadados")
+        
+    try:
+        caminho = get_file_path(arquivo)
+        os.remove(caminho)
 
+    except:
+        print("Deletou do disco")
+        
+    messages.info(request,"As referências ao arquivo foram deletadas!")
+
+        
+
+        
+    return redirect("index")
+        
+    
+   
 def transform(operacao):
     op, col = operacao.split("_")
     series = None

@@ -2,6 +2,7 @@
 
 {% block content %}
 
+
 <h1 class="text-center text-success">Seleção de Arquivo</h1>
 
 <div class="row container">
@@ -25,19 +26,17 @@
             <tr>
                 <!-- <td><a href="media/{{arquivo.arquivo}}">{{arquivo.arquivo}}</a></td> -->
 
-                <td><a href="{% url 'get_tabela' arquivo %}">{{arquivo}}</a> : {{ arquivo.arquivo}}</td>
-
+                <td><a class="btn btn-info" href="{% url 'get_tabela' arquivo %}">{{arquivo}}</a> : {{ arquivo.arquivo}}</td>
+                <td><a class="btn btn-danger" href="{% url 'del_file' arquivo.id %}">X</a></td>
             </tr>
             {% endfor %}
         </table>
     </div>
 </div>
 
-{% if messages %}
-<ul class="messages">
-    {% for message in messages %}
-    <li{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
-        {% endfor %}
-</ul>
-{% endif %}
+
+
+
+
+
 {% endblock content %}
