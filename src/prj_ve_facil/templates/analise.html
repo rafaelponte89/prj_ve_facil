@@ -10,63 +10,90 @@
 
 
 <div class="container">
-    <h1 class="text-center text-success">Informações do Arquivo Carregado</h1>
-    <div class="bg-info rounded-4">
-        <label>Nome do arquivo: <strong>{{arquivo}}</strong></label> <br>
-        <label>Caminho do arquivo: {{caminho}}</label> <br>
-        <label>Número de Linhas: {{linhas_totais}}</label> <br>
-        <label>Número de Colunas: {{colunas|length}}</label><br>
-    </div>
-    <div class="row mt-5">
-        <div class="col-12">
-            <form name="form" id="form" method="get" role="form">
-                {% csrf_token %}
-                <label for="selectoperacao">Operação</label>
+    <div class="row">
+        <div class="col-12 text-bg-dark rounded-4 p-2 text-center mt-2">
+            <h1 class="text-center text-info">Informações do Arquivo Carregado</h1>
+
+            <label>Nome do arquivo: <strong class="text-info">{{arquivo}}</strong></label> <br>
+            <label>Caminho do arquivo: <strong class="text-info">{{caminho}}</strong></label> <br>
+            <label>Número de Linhas: <strong class="text-info">{{linhas_totais}}</strong></label> <br>
+            <label>Número de Colunas: <strong class="text-info">{{colunas|length}}</strong></label><br>
+        </div>
+        <div class="row mt-2">
+            <div class="col-12">
+                <form name="form" id="form" method="get" role="form">
+                    {% csrf_token %}
+                    <!-- <label for="selectoperacao">Operação</label>
                 <select name="selectoperacao" id="selectoperacao"
                     class="operacao form-select form-select-lg mb-3 rounded-4 text-bg-success" multiple
                     aria-label="multiple select example">
-                    <option value="None" selected>Selecione</option>
+                    <option class="btn-check" value="None" selected>Selecione</option>
+
                     <option value="contar">Contar</option>
                     <option value="somar">Somar</option>
                     <option value="media">Média</option>
                     <option value="desvio">Desvio</option>
-                </select>
-                <table class="table table-hover table-dark">
-                    <tr>
-                        <th>Colunas</th>
-                        <th>Tipo</th>
-                        <th>Agrupar</th>
-                    </tr>
-                    {% for c,t in colunas.items %}
-                    <tr>
-                        <td>
-                            <input type="checkbox" class="btn-check coluna" autocomplete="off" name="{{c}}" id="{{c}}"
-                                value="{{c}}">
-                            <label class="btn btn-outline-secondary" for="{{c}}">{{c}}</label><br>
+                </select> -->
+                    <div class="row">
+                        <div class="col-12 text-bg-dark rounded-4 p-2 text-center">
 
-                            <!-- <input type="checkbox" class="form-check-input coluna" id="{{c}}" name="{{c}}"
+                            <h1 class="text-info">Operações</h1>
+                            <input type="radio" class="btn-check" name="options-outlined" id="radiocontar"
+                                autocomplete="off" value="contar">
+                            <label class="btn btn-outline-info" for="radiocontar">Contar</label>
+
+                            <input type="radio" class="btn-check" name="options-outlined" id="radiosomar"
+                                autocomplete="off" value="somar">
+                            <label class="btn btn-outline-info" for="radiosomar">Somar</label>
+
+                            <input type="radio" class="btn-check" name="options-outlined" id="radiomedia"
+                                autocomplete="off" value="media">
+                            <label class="btn btn-outline-info" for="radiomedia">Média</label>
+
+                            <input type="radio" class="btn-check" name="options-outlined" id="radiodesvio"
+                                autocomplete="off" value="desvio">
+                            <label class="btn btn-outline-info" for="radiodesvio">Desvio</label>
+
+                        </div>
+                    </div>
+
+                    <table class="table table-hover table-dark mt-2">
+                        <tr>
+                            <th>Colunas</th>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+
+                            <th>Agrupar</th>
+                        </tr>
+                        {% for c,t in colunas.items %}
+                        <tr>
+                            <td>
+                                <input type="checkbox" class="btn-check coluna" autocomplete="off" name="{{c}}"
+                                    id="{{c}}" value="{{c}}">
+                                <label class="btn btn-outline-secondary" for="{{c}}">{{c}}</label><br>
+
+                                <!-- <input type="checkbox" class="form-check-input coluna" id="{{c}}" name="{{c}}"
                                 value="{{c}}">
                             <label for="{{c}}">{{c}}</label> -->
-                        </td>
-                        <!-- <td> <input type="text" class="parametro" id="param{{c}}" name="param{{c}}" size=10 maxlength=30 disabled></td> -->
+                            </td>
+                            <td> <input type="text" class="parametro" id="param{{c}}" name="param{{c}}" size=10
+                                    maxlength=30 disabled></td>
 
 
-                        <td>
+                            <td>
+                                <option value="" selected>{{t}}</option>
+                            </td>
 
-                            <option value="" selected>{{t}}</option>
-
-                        </td>
-
-                        <td>
-                            <!-- <input type="checkbox" class="form-check-input agrupa" id="ag{{c}}" name="ag{{c}}"
+                            <td>
+                                <!-- <input type="checkbox" class="form-check-input agrupa" id="ag{{c}}" name="ag{{c}}"
                                 value="{{c}}"> -->
-                            <!-- <label for="ag{{c}}">{{c}}</label> -->
+                                <!-- <label for="ag{{c}}">{{c}}</label> -->
 
-                            <input type="checkbox" class="btn-check agrupa" autocomplete="off" name="ag{{c}}"
-                                id="ag{{c}}" value="{{c}}">
-                            <label class="btn btn-outline-secondary" for="ag{{c}}">{{c}}</label><br>
-                        </td>
-                        <!-- <td>
+                                <input type="checkbox" class="btn-check agrupa" autocomplete="off" name="ag{{c}}"
+                                    id="ag{{c}}" value="{{c}}">
+                                <label class="btn btn-outline-secondary" for="ag{{c}}">{{c}}</label><br>
+                            </td>
+                            <!-- <td>
 
                              <select name="select{{c}}" id="select{{c}}" class="operacao">
                                 <option value="None_{{c}}" selected>Selecione</option>
@@ -83,156 +110,151 @@
                               
                             </select> 
                         </td> -->
-                    </tr>
+                        </tr>
 
-                    {% endfor %}
-                    <!-- <div class="row">
-                        <div class="col">
-                            <input type="radio" class="btn-check" name="options-outlined" id="radiocontar"
-                                autocomplete="off" value="contar">
-                            <label class="btn btn-outline-success" for="radiocontar">Contar</label>
+                        {% endfor %}
 
-                            <input type="radio" class="btn-check" name="options-outlined" id="radiosomar"
-                                autocomplete="off" value="somar">
-                            <label class="btn btn-outline-success" for="radiosomar">Somar</label>
+                    </table>
+                </form>
 
-                            <input type="radio" class="btn-check" name="options-outlined" id="radiomedia"
-                                autocomplete="off" value="media">
-                            <label class="btn btn-outline-success" for="radiomedia">Média</label>
-
-                            <input type="radio" class="btn-check" name="options-outlined" id="radiodesvio"
-                                autocomplete="off" value="desvio">
-                            <label class="btn btn-outline-success" for="radiodesvio">Desvio</label>
-                        </div>
-                    </div> -->
-
-
-                </table>
-
-
-            </form>
-
-        </div>
-    </div>
-    <div class="row">
-        <div class="cols-md-12">
-            <div>
-                <canvas id="myChart"></canvas>
             </div>
         </div>
-    </div>
- 
-
-    <script type="text/javascript">
-
-        const agrupa = document.getElementsByClassName("agrupa");
-        ls_agrupa = agrupar(agrupa);
-        //Definindo parâmetros...16/04/2023
-        // ls_col = selecionarColunas();
-        var ls_col = [];
-        const selcol = document.getElementsByClassName("coluna");
-        for (let i = 0; i < selcol.length; i++) {
-            selcol[i].addEventListener('change', function () {
-                if (selcol[i].checked) {
-                    selcol[i].checked = true;
-
-                    $("#paramcountry").attr('disabled', false)
-
-                    ls_col.push(selcol[i].value)
+        <div class="row">
+            <div class="cols-md-12">
+                <div>
+                    <canvas id="myChart"></canvas>
+                </div>
+            </div>
+        </div>
 
 
-                }
-                else {
-                    $("#paramcountry").attr('disabled', true)
-                    selcol[i].checked = false;
-                    let pos = ls_col.indexOf(selcol[i].value)
-                    console.log(pos);
-                    ls_col.splice(pos, 1);
-                    // console.log("uncheck");
-                }
-                // console.log(ls_col);
-            });
-        }
+        <script type="text/javascript">
 
-        // const selop = document.getElementsByClassName("operacao");
-        const selop = document.getElementById("selectoperacao");
+            const agrupa = document.getElementsByClassName("agrupa");
+            ls_agrupa = agrupar(agrupa);
+            //Definindo parâmetros...16/04/2023
+            // ls_col = selecionarColunas();
+            var ls_col = [];
+            const selcol = document.getElementsByClassName("coluna");
+            for (let i = 0; i < selcol.length; i++) {
+                selcol[i].addEventListener('change', function () {
+                    if (selcol[i].checked) {
+                        selcol[i].checked = true;
 
-        let op = "";
-        selop.addEventListener('change', () => {
-            op = selop.value;
-        })
 
-        function sendAjax() {
-            $.ajax({
-                url: "{% url 'get_tabela' arquivo%}",
-                type: "GET",
-                data: {
-                    "ls_agrupar": ls_agrupa,
-                    "ls_col": ls_col,
-                    "sel_op": op
+                        $("#param" + selcol[i].value).attr('disabled', false)
 
-                },
-                success: (data) => {
-                    // var listaContinentes = [];
-                    // var listaQuantidadePaises = [];
-                    // var objJson = JSON.parse(data);
-                    $("#tabela").html(data);
+                        ls_col.push(selcol[i].value)
 
-                    // $("#tabela").html(data);
-
-                    // $("#exemplo").html(data);
-                    $(".dataframe").addClass("table");
-                    $(".dataframe").addClass("table-bordered");
-                    $(".dataframe").addClass("centered");
-                    $(".dataframe").addClass("table-hover");
-                    $(".dataframe").addClass("table-responsive-sm");
-                }
-            })
-        }
-
-        function visAjax() {
-            $.ajax({
-                url: "{% url 'get_file' arquivo%}",
-                dataType: "json",
-                type: "GET",
-                data: {
-                    "ls_agrupar": ls_agrupa,
-                    "ls_col": ls_col,
-                    "sel_op": op
-                },
-                success: (data) => {
-                    var listaContinentes = [];
-                    var listaQuantidadePaises = [];
-                    var objJson = JSON.parse(data);
-                    var x = []
-                    var y = []
-                    for (var [key, value] of Object.entries(objJson)) {
-                        for (var [key, value] of Object.entries(value)) {
-                            x.push(key)
-                            y.push(value)
-
-                        }
                     }
-                    console.log(x)
-                    console.log(y)
+                    else {
+                        $("#param" + selcol[i].value).attr('disabled', true)
+                        selcol[i].checked = false;
+                        let pos = ls_col.indexOf(selcol[i].value)
+                        console.log(pos);
+                        ls_col.splice(pos, 1);
+                        // console.log("uncheck");
+                    }
+                    // console.log(ls_col);
+                });
+            }
 
+            // const selop = document.getElementsByClassName("operacao");
+            const selop = document.getElementById("selectoperacao");
 
-                    var chartExist = Chart.getChart("myChart");
-                    if (chartExist != undefined)
-                        chartExist.destroy();
+            let op = "";
+            // selop.addEventListener('change', () => {
+            //     op = selop.value;
+            // })
 
-                    get_chart(x, y);
-
-                }
+            //radio buttons
+            document.getElementById("radiomedia").addEventListener('change', () => {
+                op = "media"
+            })
+            document.getElementById("radiocontar").addEventListener('change', () => {
+                op = "contar"
+            })
+            document.getElementById("radiosomar").addEventListener('change', () => {
+                op = "somar"
+            })
+            document.getElementById("radiodesvio").addEventListener('change', () => {
+                op = "desvio"
             })
 
-        }
+            function sendAjax() {
+                $.ajax({
+                    url: "{% url 'get_tabela' arquivo%}",
+                    type: "GET",
+                    data: {
+                        "ls_agrupar": ls_agrupa,
+                        "ls_col": ls_col,
+                        "sel_op": op
 
-        $(".coluna").change(() => sendAjax());
+                    },
+                    success: (data) => {
+                        // var listaContinentes = [];
+                        // var listaQuantidadePaises = [];
+                        // var objJson = JSON.parse(data);
+                        $("#tabela").html(data);
 
-        // $(".agrupa").change(() => sendAjax());
-        // $(".operacao").change(() => sendAjax());
-        $("#selectoperacao").change(() => visAjax());
+                        // $("#tabela").html(data);
+
+                        // $("#exemplo").html(data);
+                        $(".dataframe").addClass("table");
+                        $(".dataframe").addClass("table-bordered");
+                        $(".dataframe").addClass("centered");
+                        $(".dataframe").addClass("table-hover");
+                        $(".dataframe").addClass("table-responsive-sm");
+                    }
+                })
+            }
+
+            function visAjax() {
+                $.ajax({
+                    url: "{% url 'get_file' arquivo%}",
+                    dataType: "json",
+                    type: "GET",
+                    data: {
+                        "ls_agrupar": ls_agrupa,
+                        "ls_col": ls_col,
+                        "sel_op": op
+                    },
+                    success: (data) => {
+                        var listaContinentes = [];
+                        var listaQuantidadePaises = [];
+                        var objJson = JSON.parse(data);
+                        var x = [];
+                        var y = [];
+                        for (var [key, value] of Object.entries(objJson)) {
+                            for (var [key, value] of Object.entries(value)) {
+                                x.push(key);
+                                y.push(value);
+
+                            }
+                        }
+                        console.log(x);
+                        console.log(y);
+
+
+                        var chartExist = Chart.getChart("myChart");
+                        if (chartExist != undefined)
+                            chartExist.destroy();
+
+                        get_chart(x, y);
+
+                    }
+                })
+
+            }
+
+            $(".coluna").change(() => sendAjax());
+
+
+            // $("#selectoperacao").change(() => visAjax());
+            $("#radiocontar").change(() => visAjax());
+            $("#radiosomar").change(() => visAjax());
+            $("#radiomedia").change(() => visAjax());
+            $("#radiodesvio").change(() => visAjax());
 
 
             //     function get_chart(x, y) {
@@ -303,21 +325,21 @@
 
 
 
-</div>
-
-<h2 class="text-center text-success">Amostra dos Primeiros 30 Registros das Colunas Selecionadas</h2>
-<div class="row">
-    <div class="col-2"></div>
-    <div class="col-8">
-        <div id="tabela" class="text-bg-light">
-
-        </div>
     </div>
-    <div class="col-2"></div>
-</div>
+
+    <h2 class="text-center text-success">Amostra dos Primeiros 30 Registros das Colunas Selecionadas</h2>
+    <div class="row">
+        <div class="col-2"></div>
+        <div class="col-8">
+            <div id="tabela" class="text-bg-light table-responsive">
+
+            </div>
+        </div>
+        <div class="col-2"></div>
+    </div>
 
 
-<!-- <script type="text/javascript">
+    <!-- <script type="text/javascript">
         function htmlDecode(input) {
             var doc = new DOMParser().parseFromString(input, "text/html");
             return doc.documentElement.textContent;
@@ -341,4 +363,4 @@
 
 
 
-{% endblock content %}
+    {% endblock content %}

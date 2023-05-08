@@ -14,21 +14,24 @@ global dataframe
 
 # Formulário para adicionar arquivos 
 def frmAddArquivo(request):
+    
+    form = formArquivo()
     if request.method == "POST":
         arquivo = request.FILES['arquivo']
         if arquivo.name.endswith('.csv'):
             form = formArquivo(request.POST, request.FILES)
             if form.is_valid():
-                form.save()      
-    else:
+                
+                form.save()
+                messages.success(request,"Salvo com Sucesso!!!")   
+   
+        else:
+            messages.warning(request,"A extensão do arquivo precisa ser '.CSV'")   
     
-       
-        form = formArquivo()
-        
     return form
     
 def index(request):
-    
+  
     form = frmAddArquivo(request)
     arquivos = get_all_files()
 
@@ -44,7 +47,7 @@ def get_file_path(name_arquivo):
     
     return arquivo.arquivo.path
 
-def get_file_2(request, arquivo):
+def analisar(request, arquivo,cod=1):
     
     try:
         is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
@@ -53,15 +56,14 @@ def get_file_2(request, arquivo):
 
         caminho = get_file_path(arquivo)
         colunas_tipos = {}
-    
-        dataframe = pd.read_csv(caminho,sep = '[:,|;]',engine='python')
+
+        if cod == 1:
+            dataframe = pd.read_csv(caminho,sep = '[:,|;]',engine='python')
+        else:
+            dataframe = pd.read_csv(caminho,sep = '[:,|;]',engine='python').head(30)
+
         
-        # dataframe_chart = dataframe.copy()
-        
-        # dataframe_chart["continent"] = pd.Series(list(range(len(dataframe_chart))))
-        # print("dataframe_chart\n", type(dataframe_chart))
-        
-        colunas = list(dataframe.columns.values.tolist())
+        colunas = ren_cols(dataframe)
         linhas = len(dataframe.index)
         tipos = dataframe.dtypes.to_list()
         
@@ -72,33 +74,29 @@ def get_file_2(request, arquivo):
             
         for i in range(len(colunas)):
             colunas_tipos[colunas[i]] = tipos[i]
-        
+            
+      
         if is_ajax:
             if request.method == 'GET':
                 
                 cols = request.GET.getlist("ls_col[]")
-                agrupar = request.GET.getlist("ls_agrupar[]")
-                op = request.GET.get("sel_op")
-               
                 dataframe = dataframe[cols]
-               
-                cols_agrup = []
-                if len(agrupar):
-                    for ag in agrupar:
-                        if ag in cols:
-                            cols_agrup.append(ag)
-                    if op == "contar":
-                        dataframe = dataframe.groupby(cols_agrup).count()
-                    elif op == "somar":
-                        dataframe = dataframe.groupby(cols_agrup).sum()
-                    elif op == "media":
-                        dataframe = dataframe.groupby(cols_agrup).mean()
-                    elif op == "desvio":
-                        dataframe = dataframe.groupby(cols_agrup).std()
-                            
-              
-                tabela = dataframe.to_json()
                 
+                if cod == 1:
+                    agrupar = request.GET.getlist("ls_agrupar[]")
+                    op = request.GET.get("sel_op")
+
+                    cols_agrup = []
+                    if len(agrupar):
+                        for ag in agrupar:
+                            if ag in cols:
+                                cols_agrup.append(ag)
+                        dataframe = executar_op(op, cols_agrup, dataframe)
+                            
+                    tabela = dataframe.to_json()
+                else:
+                    tabela = dataframe.to_html()
+                    
                 return JsonResponse(tabela, safe=False)
       
             
@@ -109,8 +107,6 @@ def get_file_2(request, arquivo):
        messages.warning(request,"Arquivo não encontrado no caminho!!!")
        return redirect('index')
 
-  
-    
     context = {
         'colunas': colunas_tipos,
         'linhas': linhas,
@@ -121,158 +117,67 @@ def get_file_2(request, arquivo):
     }    
     
     return render(request, 'analise.html', context)
-
-   
-
     
-# efetua a leitura de um arquivo
+# pega arquivo
+def get_file_2(request, arquivo):
+    return analisar(request, arquivo, cod=1)
+
+# efetua a leitura de um arquivo joga na tabela
 def get_file(request, arquivo):
-     
-    try:
-        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
-        print("ajax",is_ajax)
+    return analisar(request,arquivo,cod=2)
 
-        caminho = get_file_path(arquivo)
-        colunas_tipos = {}
-    
-        dataframe = pd.read_csv(caminho,sep = '[:,|;]',engine='python')
-        linhas_totais = len(dataframe.index)
-        dataframe = dataframe.head(30)
-        
-        colunas = list(dataframe.columns.values.tolist())
-        linhas = len(dataframe.index)
-        tipos = dataframe.dtypes.to_list()
-        
-        i = 0
-        for tipo in tipos:
-            tipos[i] = tipo
-            i = i + 1
-            
-        for i in range(len(colunas)):
-            colunas_tipos[colunas[i]] = tipos[i]
-        
-        if is_ajax:
-            if request.method == 'GET':
-                
-                cols = request.GET.getlist("ls_col[]")
-                agrupar = request.GET.getlist("ls_agrupar[]")
-                op = request.GET.get("sel_op")
-                
-                dataframe = dataframe[cols]
-               
-                # cols_agrup = []
-                # if len(agrupar):
-                #     for ag in agrupar:
-                #         if ag in cols:
-                #             cols_agrup.append(ag)
-                #     if op == "contar":
-                #         dataframe = dataframe.groupby(cols_agrup).count()
-                #     elif op == "somar":
-                #         dataframe = dataframe.groupby(cols_agrup).sum()
-                #     elif op == "media":
-                #         dataframe = dataframe.groupby(cols_agrup).mean()
-                #     elif op == "desvio":
-                #         dataframe = dataframe.groupby(cols_agrup).std()
-                            
-                # print(dataframe)
-                # print(type(dataframe))
-                tabela_html = dataframe.to_html()
-                print(tabela_html)
-                # tabela = dataframe.to_json()
-               
-                return JsonResponse(tabela_html, safe=False)
-        # agrupar = []
-        # if request.GET:
-        #     agrupar = request.GET.getlist("ls_agrupar[]")
-        #     cols = request.GET.getlist("ls_col[]")
-        #     if len(cols):
-        #         dataframe = dataframe[cols]
-          
-        
-             
-        # html_tabela = dataframe[(dataframe["continent"] == "Africa") & (dataframe["continent"] == "Asia")].head(10).to_html().encode('utf-8')
-
-        # dataframe= dataframe[(dataframe["continent"] == "Africa") | (dataframe["continent"] == "Asia")]
-    
-        # if len(agrupar):
-        #     dataframe = dataframe.groupby(agrupar).count()
-        #     print("agrupou")
-            
-            
-       
-        
-    except FileNotFoundError:
-       print('Arquivo não encontrado***')
-       messages.warning(request,f"!!! Arquivo não encontrado no caminho !!! ({caminho})")
-
-       return redirect('index')
-    except:
-        messages.error(request, f"XXX Erro na estrutura do arquivo XXX ({caminho})","danger")
-        
-        return redirect('index')
-  
-    
-    context = {
-        'colunas': colunas_tipos,
-        'linhas': linhas,
-        'arquivo': arquivo,
-        'caminho': caminho,
-        'linhas_totais': linhas_totais
-        
-    }    
-    
-    return render(request, 'analise.html', context)
-
+# deleta referencias ao arquivo
 def del_file(request,id):
   
     arquivo = Arquivos.objects.get(pk=id)
        
     try:
-        arquivo.delete()
-    except:
-        print("deletou metadados")
+        try:
+            caminho = get_file_path(arquivo)
+            os.remove(caminho)
+        except:
+            print("Caminho não encontrado")
         
-    try:
-        caminho = get_file_path(arquivo)
-        os.remove(caminho)
-
+        finally:
+            arquivo.delete()
+       
     except:
-        print("Deletou do disco")
+        print("Metadados não existe")
         
+ 
     messages.info(request,"As referências ao arquivo foram deletadas!")
 
-        
-
-        
     return redirect("index")
-        
+  
+# renomeia colunas e retorna novo dataframe com colunas renomeadas      
+def ren_cols(dataframe):
     
-   
-def transform(operacao):
-    op, col = operacao.split("_")
-    series = None
-    if op == "contar":
-        series = dataframe.groupby(col).value_counts()
-    elif op == "somar":
-        series = dataframe.groupby(col).sum()
-    elif op == "media":
-        series = dataframe.groupby(col).mean()
-    elif op == "desvio":
-        series = dataframe.groupby(col).std()
-        
-    return series
+    colunas = list(dataframe.columns.values.tolist())
+    novo_nome = ''
+    simbolos = [' ','(',')','.']
+    for col in colunas:
+        novo_nome = col
+        for s in simbolos:
+            if s in col:
+                novo_nome = novo_nome.replace(s, '_')   
+                    
+        dataframe.rename(columns={col: novo_nome}, inplace = True)
+    colunas = list(dataframe.columns.values.tolist())
+    
+    return colunas
 
-def transform_2(op, cols):
+# executar operações de agrupamento e devolver novo dataframe
+def executar_op(op, cols_agrup, dataframe):
     
     if op == "contar":
-        dataframe = dataframe.groupby(cols).value_counts()
+        dataframe = dataframe.groupby(cols_agrup).count()
     elif op == "somar":
-        dataframe = dataframe.groupby(cols).sum()
+        dataframe = dataframe.groupby(cols_agrup).sum()
     elif op == "media":
-        dataframe = dataframe.groupby(cols).mean()
+        dataframe = dataframe.groupby(cols_agrup).mean()
     elif op == "desvio":
-        dataframe = dataframe.groupby(cols).std()
-    print(dataframe)
+        dataframe = dataframe.groupby(cols_agrup).std()
+    
     return dataframe
 
 # Lista todos os arquivos que estão salvos no banco
