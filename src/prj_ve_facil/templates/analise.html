@@ -90,7 +90,7 @@
                                 <!-- <label for="ag{{c}}">{{c}}</label> -->
 
                                 <input type="checkbox" class="btn-check agrupa" autocomplete="off" name="ag{{c}}"
-                                    id="ag{{c}}" value="{{c}}">
+                                    id="ag{{c}}" value="{{c}}" disabled>
                                 <label class="btn btn-outline-secondary" for="ag{{c}}">{{c}}</label><br>
                             </td>
                             <!-- <td>
@@ -142,13 +142,20 @@
                         selcol[i].checked = true;
 
 
-                        $("#param" + selcol[i].value).attr('disabled', false)
+                        $("#param" + selcol[i].value).attr('disabled', false);
+                        $("#ag" + selcol[i].value).attr('disabled', false);
 
                         ls_col.push(selcol[i].value)
 
                     }
                     else {
-                        $("#param" + selcol[i].value).attr('disabled', true)
+                        $("#param" + selcol[i].value).attr('disabled', true);
+
+                        $("#ag" + selcol[i].value).prop('checked',false);
+                        $("#ag" + selcol[i].value).attr('disabled', true);
+                        
+
+
                         selcol[i].checked = false;
                         let pos = ls_col.indexOf(selcol[i].value)
                         console.log(pos);
@@ -180,6 +187,9 @@
             document.getElementById("radiodesvio").addEventListener('change', () => {
                 op = "desvio"
             })
+
+            var ls_param = [];
+
 
             function sendAjax() {
                 $.ajax({
@@ -217,7 +227,8 @@
                     data: {
                         "ls_agrupar": ls_agrupa,
                         "ls_col": ls_col,
-                        "sel_op": op
+                        "sel_op": op,
+                        "param": ls_param
                     },
                     success: (data) => {
                         var listaContinentes = [];
