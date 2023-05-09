@@ -21,101 +21,78 @@
         </div>
         <div class="row mt-2">
             <div class="col-12">
-                <form name="form" id="form" method="get" role="form">
-                    {% csrf_token %}
-                    <!-- <label for="selectoperacao">Operação</label>
-                <select name="selectoperacao" id="selectoperacao"
-                    class="operacao form-select form-select-lg mb-3 rounded-4 text-bg-success" multiple
-                    aria-label="multiple select example">
-                    <option class="btn-check" value="None" selected>Selecione</option>
+                <div class="row">
+                    <div class="col-12 text-bg-dark rounded-4 p-2 text-center">
 
-                    <option value="contar">Contar</option>
-                    <option value="somar">Somar</option>
-                    <option value="media">Média</option>
-                    <option value="desvio">Desvio</option>
-                </select> -->
-                    <div class="row">
-                        <div class="col-12 text-bg-dark rounded-4 p-2 text-center">
+                        <h1 class="text-info">Operações</h1>
+                        <input type="radio" class="btn-check" name="options-outlined" id="radiocontar"
+                            autocomplete="off" value="contar">
+                        <label class="btn btn-outline-info" for="radiocontar">Contar</label>
 
-                            <h1 class="text-info">Operações</h1>
-                            <input type="radio" class="btn-check" name="options-outlined" id="radiocontar"
-                                autocomplete="off" value="contar">
-                            <label class="btn btn-outline-info" for="radiocontar">Contar</label>
+                        <input type="radio" class="btn-check" name="options-outlined" id="radiosomar" autocomplete="off"
+                            value="somar">
+                        <label class="btn btn-outline-info" for="radiosomar">Somar</label>
 
-                            <input type="radio" class="btn-check" name="options-outlined" id="radiosomar"
-                                autocomplete="off" value="somar">
-                            <label class="btn btn-outline-info" for="radiosomar">Somar</label>
+                        <input type="radio" class="btn-check" name="options-outlined" id="radiomedia" autocomplete="off"
+                            value="media">
+                        <label class="btn btn-outline-info" for="radiomedia">Média</label>
 
-                            <input type="radio" class="btn-check" name="options-outlined" id="radiomedia"
-                                autocomplete="off" value="media">
-                            <label class="btn btn-outline-info" for="radiomedia">Média</label>
+                        <input type="radio" class="btn-check" name="options-outlined" id="radiodesvio"
+                            autocomplete="off" value="desvio">
+                        <label class="btn btn-outline-info" for="radiodesvio">Desvio</label>
 
-                            <input type="radio" class="btn-check" name="options-outlined" id="radiodesvio"
-                                autocomplete="off" value="desvio">
-                            <label class="btn btn-outline-info" for="radiodesvio">Desvio</label>
-
+                        <div class="justify-content-end mt-2">
+                            <button type="button" class="btn btn-warning btn-lg" name="options-outlined"
+                                id="btnaplicar">Aplicar </button>
                         </div>
+
                     </div>
+                </div>
 
-                    <table class="table table-hover table-dark mt-2">
-                        <tr>
-                            <th>Colunas</th>
-                            <th>Parâmetro</th>
-                            <th>Tipo</th>
+                <div class="row">
+                    <div class="col-12">
+                        <form name="form" id="form" method="get" role="form">
+                            {% csrf_token %}
+                            <table class="table table-hover table-dark mt-2">
+                                <tr>
+                                    <th>Colunas</th>
+                                    <th>Parâmetro</th>
+                                    <th>Tipo</th>
 
-                            <th>Agrupar</th>
-                        </tr>
-                        {% for c,t in colunas.items %}
-                        <tr>
-                            <td>
-                                <input type="checkbox" class="btn-check coluna" autocomplete="off" name="{{c}}"
-                                    id="{{c}}" value="{{c}}">
-                                <label class="btn btn-outline-secondary" for="{{c}}">{{c}}</label><br>
+                                    <th>Agrupar</th>
+                                </tr>
+                                {% for c,t in colunas.items %}
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" class="btn-check coluna" autocomplete="off" name="{{c}}"
+                                            id="{{c}}" value="{{c}}">
+                                        <label class="btn btn-outline-secondary" for="{{c}}">{{c}}</label><br>
 
-                                <!-- <input type="checkbox" class="form-check-input coluna" id="{{c}}" name="{{c}}"
-                                value="{{c}}">
-                            <label for="{{c}}">{{c}}</label> -->
-                            </td>
-                            <td> <input type="text" class="parametro" id="param{{c}}" name="param{{c}}" size=10
-                                    maxlength=30 disabled></td>
+                                    </td>
+                                    <td> <input type="text" class="parametro" id="param{{c}}" name="param{{c}}" size=10
+                                            maxlength=30 disabled></td>
 
 
-                            <td>
-                                <option value="" selected>{{t}}</option>
-                            </td>
+                                    <td>
+                                        <option value="" selected>{{t}}</option>
+                                    </td>
 
-                            <td>
-                                <!-- <input type="checkbox" class="form-check-input agrupa" id="ag{{c}}" name="ag{{c}}"
-                                value="{{c}}"> -->
-                                <!-- <label for="ag{{c}}">{{c}}</label> -->
+                                    <td>
 
-                                <input type="checkbox" class="btn-check agrupa" autocomplete="off" name="ag{{c}}"
-                                    id="ag{{c}}" value="{{c}}" disabled>
-                                <label class="btn btn-outline-secondary" for="ag{{c}}">{{c}}</label><br>
-                            </td>
-                            <!-- <td>
 
-                             <select name="select{{c}}" id="select{{c}}" class="operacao">
-                                <option value="None_{{c}}" selected>Selecione</option>
-                                {% if t == 'object' %}
+                                        <input type="checkbox" class="btn-check agrupa" autocomplete="off"
+                                            name="ag{{c}}" id="ag{{c}}" value="{{c}}" disabled>
+                                        <label class="btn btn-outline-secondary" for="ag{{c}}">{{c}}</label><br>
+                                    </td>
 
-                                <option value="contar_{{c}}">Contar</option>
-                                {% else %}
-                                <option value="contar_{{c}}">Contar</option>
-                                <option value="somar_{{c}}">Somar</option>
-                                <option value="media_{{c}}">Média</option>
-                                <option value="desvio_{{c}}">Desvio</option>
-                                <option value="projetar_{{c}}">Projetar</option>
-                                {% endif %}
-                              
-                            </select> 
-                        </td> -->
-                        </tr>
+                                </tr>
 
-                        {% endfor %}
+                                {% endfor %}
 
-                    </table>
-                </form>
+                            </table>
+                        </form>
+                    </div>
+                </div>
 
             </div>
         </div>
@@ -151,10 +128,8 @@
                     else {
                         $("#param" + selcol[i].value).attr('disabled', true);
 
-                        $("#ag" + selcol[i].value).prop('checked',false);
+                        $("#ag" + selcol[i].value).prop('checked', false);
                         $("#ag" + selcol[i].value).attr('disabled', true);
-                        
-
 
                         selcol[i].checked = false;
                         let pos = ls_col.indexOf(selcol[i].value)
@@ -187,8 +162,6 @@
             document.getElementById("radiodesvio").addEventListener('change', () => {
                 op = "desvio"
             })
-
-            var ls_param = [];
 
 
             function sendAjax() {
@@ -261,11 +234,8 @@
             $(".coluna").change(() => sendAjax());
 
 
-            // $("#selectoperacao").change(() => visAjax());
-            $("#radiocontar").change(() => visAjax());
-            $("#radiosomar").change(() => visAjax());
-            $("#radiomedia").change(() => visAjax());
-            $("#radiodesvio").change(() => visAjax());
+
+            $('#btnaplicar').click(() => visAjax());
 
 
             //     function get_chart(x, y) {
