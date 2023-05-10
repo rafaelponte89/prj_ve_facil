@@ -56,11 +56,12 @@ def analisar(request, arquivo,cod=1):
 
         caminho = get_file_path(arquivo)
         colunas_tipos = {}
+        linhas = ''
 
         if cod == 1:
             dataframe = pd.read_csv(caminho,sep = '[:,|;]',engine='python')
         else:
-            dataframe = pd.read_csv(caminho,sep = '[:,|;]',engine='python').head(30)
+            dataframe = pd.read_csv(caminho,sep = '[:,|;]',engine='python')
 
         
         colunas = ren_cols(dataframe)
@@ -109,9 +110,9 @@ def analisar(request, arquivo,cod=1):
                                 cols_agrup.append(ag)
                         dataframe = executar_op(op, cols_agrup, dataframe)
                     
-                         
                     tabela = dataframe.to_json()
                 else:
+                    dataframe = dataframe.head(30)
                     tabela = dataframe.to_html()
                     
                 return JsonResponse(tabela, safe=False)
