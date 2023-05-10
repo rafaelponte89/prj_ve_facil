@@ -42,7 +42,7 @@
                         <label class="btn btn-outline-info" for="radiodesvio">Desvio</label>
 
                         <div class="justify-content-end mt-2">
-                            <button type="button" class="btn btn-warning btn-lg" name="options-outlined"
+                            <button type="button" class="btn btn-warning btn-lg" name="btnaplicar"
                                 id="btnaplicar">Aplicar </button>
                         </div>
 
@@ -58,7 +58,6 @@
                                     <th>Colunas</th>
                                     <th>Parâmetro</th>
                                     <th>Tipo</th>
-
                                     <th>Agrupar</th>
                                 </tr>
                                 {% for c,t in colunas.items %}
@@ -70,16 +69,12 @@
 
                                     </td>
                                     <td> <input type="text" class="parametro" id="param{{c}}" name="param{{c}}" size=10
-                                            maxlength=30 disabled></td>
-
-
+                                            maxlength=30  disabled></td>
                                     <td>
                                         <option value="" selected>{{t}}</option>
                                     </td>
 
                                     <td>
-
-
                                         <input type="checkbox" class="btn-check agrupa" autocomplete="off"
                                             name="ag{{c}}" id="ag{{c}}" value="{{c}}" disabled>
                                         <label class="btn btn-outline-secondary" for="ag{{c}}">{{c}}</label><br>
@@ -126,10 +121,16 @@
 
                     }
                     else {
+                       
+                        // $("#param" + selcol[i]).value = ' ';
+                    
+                        var e = document.getElementById("param" + selcol[i].value);
+                        e.value = "";
+                        
                         $("#param" + selcol[i].value).attr('disabled', true);
-
                         $("#ag" + selcol[i].value).prop('checked', false);
                         $("#ag" + selcol[i].value).attr('disabled', true);
+                        
 
                         selcol[i].checked = false;
                         let pos = ls_col.indexOf(selcol[i].value)
@@ -162,6 +163,29 @@
             document.getElementById("radiodesvio").addEventListener('change', () => {
                 op = "desvio"
             })
+
+            //***** pensando nos parâmetros
+            
+            var ls_param = [];
+            var ls_col_param = [];
+            document.getElementById('btnaplicar').addEventListener('click', function(){
+                ls_param = [];
+                ls_col_param = [];
+                cols_param = document.getElementsByClassName('parametro');
+                for (let i = 0; i < cols_param.length; i++){
+                    if(cols_param[i].getAttribute("disabled") == null){
+                        ls_param.push(cols_param[i].value);
+                        ls_col_param.push(selcol[i].value);
+                        alert(ls_col_param);
+                    }
+                    else {
+                        
+                    }
+                }
+                
+            });
+
+            //******
 
 
             function sendAjax() {
@@ -199,9 +223,11 @@
                     type: "GET",
                     data: {
                         "ls_agrupar": ls_agrupa,
-                        "ls_col": ls_col,
+                        "ls_col": ls_col_param,
                         "sel_op": op,
-                        "param": ls_param
+                        "ls_param": ls_param
+                       
+            
                     },
                     success: (data) => {
                         var listaContinentes = [];
@@ -219,7 +245,6 @@
                         console.log(x);
                         console.log(y);
 
-
                         var chartExist = Chart.getChart("myChart");
                         if (chartExist != undefined)
                             chartExist.destroy();
@@ -232,8 +257,6 @@
             }
 
             $(".coluna").change(() => sendAjax());
-
-
 
             $('#btnaplicar').click(() => visAjax());
 

@@ -81,18 +81,35 @@ def analisar(request, arquivo,cod=1):
                 
                 cols = request.GET.getlist("ls_col[]")
                 dataframe = dataframe[cols]
+                param = request.GET.getlist("ls_param[]")
+                query = ''
+                print("Parametros", param)
+                for i in range(len(param)) :
                 
+                    if param[i] != '' and i > 0 and i < len(param)-1:
+                        query = query + ' ' + cols[i] + ' == "' + param[i] + '" &'
+                    elif param[i] != '':
+                        query = query + ' ' + cols[i] + ' == "' + param[i] + '" '
+                        
+                #     query = 'coluna1 =="parametro1" & coluna2 == "parametro2"' 
+               
+                # 10/05/2023 bug na manipulação de colunas, elas precisam 
+                if len(query): 
+                        dataframe = dataframe.query(query)
+                        print("Qurey: ", query)
+                        print("Dataframe: ", dataframe)   
                 if cod == 1:
+                    
                     agrupar = request.GET.getlist("ls_agrupar[]")
                     op = request.GET.get("sel_op")
-
                     cols_agrup = []
                     if len(agrupar):
                         for ag in agrupar:
                             if ag in cols:
                                 cols_agrup.append(ag)
                         dataframe = executar_op(op, cols_agrup, dataframe)
-                            
+                    
+                         
                     tabela = dataframe.to_json()
                 else:
                     tabela = dataframe.to_html()
