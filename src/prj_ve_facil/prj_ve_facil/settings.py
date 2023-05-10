@@ -26,7 +26,7 @@ SECRET_KEY = get_random_secret_key
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["http://fan.pythonanywhere.com/","localhost"]
+ALLOWED_HOSTS = ["fan.pythonanywhere.com","localhost"]
 
 
 # Application definition
