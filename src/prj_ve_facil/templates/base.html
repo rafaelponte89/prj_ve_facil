@@ -26,12 +26,14 @@
         }
 
     </script>
+
     {% endfor %}
     {% endif %}
+    <div class="container">
+        {% block content %}
 
-    {% block content %}
-
-    {% endblock content %}
+        {% endblock content %}
+    </div>
 
 
 </body>

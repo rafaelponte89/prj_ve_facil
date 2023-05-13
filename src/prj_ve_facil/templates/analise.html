@@ -7,363 +7,268 @@
 <script src="{% static 'config.js' %}"></script>
 <script src="{% static 'chart.js' %}"></script>
 
+<div class="row">
+    <div class="col-12 text-bg-dark rounded-4 p-2 text-center mt-2">
+        <h1 class="text-center text-info">Informações do Arquivo Carregado</h1>
 
+        <label>Nome do arquivo: <strong class="text-info">{{arquivo}}</strong></label> <br>
+        <label>Caminho do arquivo: <strong class="text-info">{{caminho}}</strong></label> <br>
+        <label>Número de Linhas: <strong class="text-info">{{linhas}}</strong></label> <br>
+        <label>Número de Colunas: <strong class="text-info">{{colunas|length}}</strong></label><br>
+    </div>
+</div>
+<div class="row mt-2">
 
-<div class="container">
-    <div class="row">
-        <div class="col-12 text-bg-dark rounded-4 p-2 text-center mt-2">
-            <h1 class="text-center text-info">Informações do Arquivo Carregado</h1>
+    <div class="col-12 text-bg-dark rounded-4 p-2 text-center">
 
-            <label>Nome do arquivo: <strong class="text-info">{{arquivo}}</strong></label> <br>
-            <label>Caminho do arquivo: <strong class="text-info">{{caminho}}</strong></label> <br>
-            <label>Número de Linhas: <strong class="text-info">{{linhas}}</strong></label> <br>
-            <label>Número de Colunas: <strong class="text-info">{{colunas|length}}</strong></label><br>
+        <h1 class="text-info">Operações</h1>
+        <input type="radio" class="btn-check" name="options-outlined" id="radiocontar" autocomplete="off"
+            value="contar">
+        <label class="btn btn-outline-info" for="radiocontar">Contar</label>
+
+        <input type="radio" class="btn-check" name="options-outlined" id="radiosomar" autocomplete="off" value="somar">
+        <label class="btn btn-outline-info" for="radiosomar">Somar</label>
+
+        <input type="radio" class="btn-check" name="options-outlined" id="radiomedia" autocomplete="off" value="media">
+        <label class="btn btn-outline-info" for="radiomedia">Média</label>
+
+        <input type="radio" class="btn-check" name="options-outlined" id="radiodesvio" autocomplete="off"
+            value="desvio">
+        <label class="btn btn-outline-info" for="radiodesvio">Desvio</label>
+
+        <div class="justify-content-end mt-2">
+            <button type="button" class="btn btn-warning btn-lg" name="btnaplicar" id="btnaplicar">Aplicar
+            </button>
         </div>
-        <div class="row mt-2">
-            <div class="col-12">
-                <div class="row">
-                    <div class="col-12 text-bg-dark rounded-4 p-2 text-center">
 
-                        <h1 class="text-info">Operações</h1>
-                        <input type="radio" class="btn-check" name="options-outlined" id="radiocontar"
-                            autocomplete="off" value="contar">
-                        <label class="btn btn-outline-info" for="radiocontar">Contar</label>
+    </div>
+</div>
 
-                        <input type="radio" class="btn-check" name="options-outlined" id="radiosomar" autocomplete="off"
-                            value="somar">
-                        <label class="btn btn-outline-info" for="radiosomar">Somar</label>
+<div class="row">
+    <div class="col-12">
+        <form name="form" id="form" method="get" role="form">
+            {% csrf_token %}
+            <div class="table-responsive">
+                <table class="table table-hover table-dark mt-2">
+                    <tr>
+                        <th>Colunas</th>
+                        <th>Parâmetro</th>
+                        <th>Tipo</th>
+                        <th>Agrupar</th>
+                    </tr>
+                    {% for c,t in colunas.items %}
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="btn-check coluna" autocomplete="off" name="{{c}}" id="{{c}}"
+                                value="{{c}}">
+                            <label class="btn btn-outline-secondary" for="{{c}}">{{c}}</label><br>
 
-                        <input type="radio" class="btn-check" name="options-outlined" id="radiomedia" autocomplete="off"
-                            value="media">
-                        <label class="btn btn-outline-info" for="radiomedia">Média</label>
+                        </td>
+                        <td> <input type="text" class="parametro" id="param{{c}}" name="param{{c}}" size=10 maxlength=30
+                                disabled></td>
+                        <td>
+                            <option value="" selected>{{t}}</option>
+                        </td>
 
-                        <input type="radio" class="btn-check" name="options-outlined" id="radiodesvio"
-                            autocomplete="off" value="desvio">
-                        <label class="btn btn-outline-info" for="radiodesvio">Desvio</label>
+                        <td>
+                            <input type="checkbox" class="btn-check agrupa" autocomplete="off" name="ag{{c}}"
+                                id="ag{{c}}" value="{{c}}" disabled>
+                            <label class="btn btn-outline-secondary" for="ag{{c}}">{{c}}</label><br>
+                        </td>
 
-                        <div class="justify-content-end mt-2">
-                            <button type="button" class="btn btn-warning btn-lg" name="btnaplicar"
-                                id="btnaplicar">Aplicar </button>
-                        </div>
+                    </tr>
 
-                    </div>
-                </div>
+                    {% endfor %}
 
-                <div class="row">
-                    <div class="col-12">
-                        <form name="form" id="form" method="get" role="form">
-                            {% csrf_token %}
-                            <table class="table table-hover table-dark mt-2">
-                                <tr>
-                                    <th>Colunas</th>
-                                    <th>Parâmetro</th>
-                                    <th>Tipo</th>
-                                    <th>Agrupar</th>
-                                </tr>
-                                {% for c,t in colunas.items %}
-                                <tr>
-                                    <td>
-                                        <input type="checkbox" class="btn-check coluna" autocomplete="off" name="{{c}}"
-                                            id="{{c}}" value="{{c}}">
-                                        <label class="btn btn-outline-secondary" for="{{c}}">{{c}}</label><br>
-
-                                    </td>
-                                    <td> <input type="text" class="parametro" id="param{{c}}" name="param{{c}}" size=10
-                                            maxlength=30  disabled></td>
-                                    <td>
-                                        <option value="" selected>{{t}}</option>
-                                    </td>
-
-                                    <td>
-                                        <input type="checkbox" class="btn-check agrupa" autocomplete="off"
-                                            name="ag{{c}}" id="ag{{c}}" value="{{c}}" disabled>
-                                        <label class="btn btn-outline-secondary" for="ag{{c}}">{{c}}</label><br>
-                                    </td>
-
-                                </tr>
-
-                                {% endfor %}
-
-                            </table>
-                        </form>
-                    </div>
-                </div>
-
+                </table>
             </div>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div>
+            <canvas id="myChart"></canvas>
         </div>
-        <div class="row">
-            <div class="cols-md-12">
-                <div>
-                    <canvas id="myChart"></canvas>
-                </div>
-            </div>
-        </div>
+    </div>
+</div>
 
 
-        <script type="text/javascript">
+<script type="text/javascript">
 
-            const agrupa = document.getElementsByClassName("agrupa");
-            ls_agrupa = agrupar(agrupa);
-            //Definindo parâmetros...16/04/2023
-            // ls_col = selecionarColunas();
-            var ls_col = [];
-            const selcol = document.getElementsByClassName("coluna");
-            for (let i = 0; i < selcol.length; i++) {
-                selcol[i].addEventListener('change', function () {
-                    if (selcol[i].checked) {
-                        selcol[i].checked = true;
+    const agrupa = document.getElementsByClassName("agrupa");
+    ls_agrupa = agrupar(agrupa);
+    //Definindo parâmetros...16/04/2023
+    // ls_col = selecionarColunas();
+    var ls_col = [];
+    const selcol = document.getElementsByClassName("coluna");
+    for (let i = 0; i < selcol.length; i++) {
+        selcol[i].addEventListener('change', function () {
+            if (selcol[i].checked) {
+                selcol[i].checked = true;
 
 
-                        $("#param" + selcol[i].value).attr('disabled', false);
-                        $("#ag" + selcol[i].value).attr('disabled', false);
+                $("#param" + selcol[i].value).attr('disabled', false);
+                $("#ag" + selcol[i].value).attr('disabled', false);
 
-                        ls_col.push(selcol[i].value)
+                ls_col.push(selcol[i].value)
 
-                    }
-                    else {
-                       
-                        // $("#param" + selcol[i]).value = ' ';
-                    
-                        var e = document.getElementById("param" + selcol[i].value);
-                        e.value = "";
-                        
-                        $("#param" + selcol[i].value).attr('disabled', true);
-                        $("#ag" + selcol[i].value).prop('checked', false);
-                        $("#ag" + selcol[i].value).attr('disabled', true);
-                        
-
-                        selcol[i].checked = false;
-                        let pos = ls_col.indexOf(selcol[i].value)
-                        console.log(pos);
-                        ls_col.splice(pos, 1);
-                        // console.log("uncheck");
-                    }
-                    // console.log(ls_col);
-                });
             }
+            else {
 
-            // const selop = document.getElementsByClassName("operacao");
-            const selop = document.getElementById("selectoperacao");
+                // $("#param" + selcol[i]).value = ' ';
 
-            let op = "";
-            // selop.addEventListener('change', () => {
-            //     op = selop.value;
-            // })
+                var e = document.getElementById("param" + selcol[i].value);
+                e.value = "";
 
-            //radio buttons
-            document.getElementById("radiomedia").addEventListener('change', () => {
-                op = "media"
-            })
-            document.getElementById("radiocontar").addEventListener('change', () => {
-                op = "contar"
-            })
-            document.getElementById("radiosomar").addEventListener('change', () => {
-                op = "somar"
-            })
-            document.getElementById("radiodesvio").addEventListener('change', () => {
-                op = "desvio"
-            })
+                $("#param" + selcol[i].value).attr('disabled', true);
+                $("#ag" + selcol[i].value).prop('checked', false);
+                $("#ag" + selcol[i].value).attr('disabled', true);
 
-            //***** pensando nos parâmetros
-            
-            var ls_param = [];
-            var ls_col_param = [];
-            document.getElementById('btnaplicar').addEventListener('click', function(){
-                ls_param = [];
-                ls_col_param = [];
-                cols_param = document.getElementsByClassName('parametro');
-                for (let i = 0; i < cols_param.length; i++){
-                    if(cols_param[i].getAttribute("disabled") == null){
-                        ls_param.push(cols_param[i].value);
-                        ls_col_param.push(selcol[i].value);
-                    }
-                    else {
-                        
+
+                selcol[i].checked = false;
+                let pos = ls_col.indexOf(selcol[i].value)
+                console.log(pos);
+                ls_col.splice(pos, 1);
+                // console.log("uncheck");
+            }
+            // console.log(ls_col);
+        });
+    }
+
+    // const selop = document.getElementsByClassName("operacao");
+    const selop = document.getElementById("selectoperacao");
+
+    let op = "";
+    // selop.addEventListener('change', () => {
+    //     op = selop.value;
+    // })
+
+    //radio buttons
+    document.getElementById("radiomedia").addEventListener('change', () => {
+        op = "media"
+    })
+    document.getElementById("radiocontar").addEventListener('change', () => {
+        op = "contar"
+    })
+    document.getElementById("radiosomar").addEventListener('change', () => {
+        op = "somar"
+    })
+    document.getElementById("radiodesvio").addEventListener('change', () => {
+        op = "desvio"
+    })
+
+    //***** pensando nos parâmetros
+
+    var ls_param = [];
+    var ls_col_param = [];
+    document.getElementById('btnaplicar').addEventListener('click', function () {
+        ls_param = [];
+        ls_col_param = [];
+        cols_param = document.getElementsByClassName('parametro');
+        for (let i = 0; i < cols_param.length; i++) {
+            if (cols_param[i].getAttribute("disabled") == null) {
+                ls_param.push(cols_param[i].value);
+                ls_col_param.push(selcol[i].value);
+            }
+            else {
+
+            }
+        }
+
+    });
+
+    //******
+
+
+    function sendAjax() {
+        $.ajax({
+            url: "{% url 'get_tabela' arquivo%}",
+            type: "GET",
+            data: {
+                "ls_agrupar": ls_agrupa,
+                "ls_col": ls_col,
+                "sel_op": op
+
+            },
+            success: (data) => {
+                // var listaContinentes = [];
+                // var listaQuantidadePaises = [];
+                // var objJson = JSON.parse(data);
+                $("#tabela").html(data);
+
+                // $("#tabela").html(data);
+
+                // $("#exemplo").html(data);
+                $(".dataframe").addClass("table");
+                $(".dataframe").addClass("table-bordered");
+                $(".dataframe").addClass("centered");
+                $(".dataframe").addClass("table-hover");
+                $(".dataframe").addClass("table-responsive-sm");
+            }
+        })
+    }
+
+    function visAjax() {
+        $.ajax({
+            url: "{% url 'get_file' arquivo%}",
+            dataType: "json",
+            type: "GET",
+            data: {
+                "ls_agrupar": ls_agrupa,
+                "ls_col": ls_col_param,
+                "sel_op": op,
+                "ls_param": ls_param
+
+
+            },
+            success: (data) => {
+                var listaContinentes = [];
+                var listaQuantidadePaises = [];
+                var objJson = JSON.parse(data);
+                var x = [];
+                var y = [];
+                for (var [key, value] of Object.entries(objJson)) {
+                    for (var [key, value] of Object.entries(value)) {
+                        x.push(key);
+                        y.push(value);
+
                     }
                 }
-                
-            });
+                console.log(x);
+                console.log(y);
 
-            //******
+                var chartExist = Chart.getChart("myChart");
+                if (chartExist != undefined)
+                    chartExist.destroy();
 
-
-            function sendAjax() {
-                $.ajax({
-                    url: "{% url 'get_tabela' arquivo%}",
-                    type: "GET",
-                    data: {
-                        "ls_agrupar": ls_agrupa,
-                        "ls_col": ls_col,
-                        "sel_op": op
-
-                    },
-                    success: (data) => {
-                        // var listaContinentes = [];
-                        // var listaQuantidadePaises = [];
-                        // var objJson = JSON.parse(data);
-                        $("#tabela").html(data);
-
-                        // $("#tabela").html(data);
-
-                        // $("#exemplo").html(data);
-                        $(".dataframe").addClass("table");
-                        $(".dataframe").addClass("table-bordered");
-                        $(".dataframe").addClass("centered");
-                        $(".dataframe").addClass("table-hover");
-                        $(".dataframe").addClass("table-responsive-sm");
-                    }
-                })
-            }
-
-            function visAjax() {
-                $.ajax({
-                    url: "{% url 'get_file' arquivo%}",
-                    dataType: "json",
-                    type: "GET",
-                    data: {
-                        "ls_agrupar": ls_agrupa,
-                        "ls_col": ls_col_param,
-                        "sel_op": op,
-                        "ls_param": ls_param
-                       
-            
-                    },
-                    success: (data) => {
-                        var listaContinentes = [];
-                        var listaQuantidadePaises = [];
-                        var objJson = JSON.parse(data);
-                        var x = [];
-                        var y = [];
-                        for (var [key, value] of Object.entries(objJson)) {
-                            for (var [key, value] of Object.entries(value)) {
-                                x.push(key);
-                                y.push(value);
-
-                            }
-                        }
-                        console.log(x);
-                        console.log(y);
-
-                        var chartExist = Chart.getChart("myChart");
-                        if (chartExist != undefined)
-                            chartExist.destroy();
-
-                        get_chart(x, y);
-
-                    }
-                })
+                get_chart(x, y);
 
             }
+        })
 
-            $(".coluna").change(() => sendAjax());
+    }
 
-            $('#btnaplicar').click(() => visAjax());
+    $(".coluna").change(() => sendAjax());
 
+    $('#btnaplicar').click(() => visAjax());
 
-            //     function get_chart(x, y) {
-            //         const labels = x;
-
-            //         const ctx = document.getElementById('myChart');
-            //         var mychart = new Chart(ctx, {
-            //             type: 'bar',
-            //             data: {
-            //                 labels: labels,
-            //                 datasets: [
-            //                     {
-
-            //                         label: 'Titulo',
-            //                         data: y,
-            //                         backgroundColor: [
-            //                             'rgba(255, 99, 132, 0.5)',
-            //                             'rgba(255, 159, 64, 0.5)',
-            //                             'rgba(255, 205, 86, 0.5)',
-            //                             'rgba(75, 192, 192, 0.5)',
-            //                             'rgba(54, 162, 235, 0.5)',
-            //                             'rgba(153, 102, 255, 0.5)',
-            //                             'rgba(201, 203, 207, 0.5)'
-            //                         ],
-            //                         borderColor: [
-            //                             'rgb(255, 99, 132)',
-            //                             'rgb(255, 159, 64)',
-            //                             'rgb(255, 205, 86)',
-            //                             'rgb(75, 192, 192)',
-            //                             'rgb(54, 162, 235)',
-            //                             'rgb(153, 102, 255)',
-            //                             'rgb(201, 203, 207)'
-            //                         ],
-
-            //                         borderWidth: 1,
-            //                     },
-            //                     // {
-            //                     //     label: 'Fevereiro',
-            //                     //     data: [12, 15],
-            //                     //     backgroundColor: [
-
-            //                     //         'rgba(255, 159, 64, 0.2)',
-
-            //                     //     ],
-            //                     //     borderColor: [
-
-            //                     //         'rgb(255, 159, 64)',
-
-            //                     //     ],
-
-            //                     //     borderWidth: 1,
-            //                     // }
-            //                 ]
-            //             },
-            //             options: {
-            //                 scales: {
-            //                     y: {
-            //                         beginAtZero: true
-            //                     }
-            //                 }
-            //             }
-            //         });
-
-            //         return mychart;
-            //     }
-
-            // </script>
+</script>
 
 
 
-    </div>
+</div>
 
-    <h2 class="text-center text-success">Amostra dos Primeiros 30 Registros das Colunas Selecionadas</h2>
-    <div class="row">
-        <div class="col-2"></div>
-        <div class="col-8">
-            <div id="tabela" class="text-bg-light table-responsive">
+<h2 class="text-center text-success">Amostra dos Primeiros 30 Registros das Colunas Selecionadas</h2>
+<div class="row">
 
-            </div>
+    <div class="col-12">
+        <div id="tabela" class="text-bg-light table-responsive">
+
         </div>
-        <div class="col-2"></div>
+
     </div>
-
-
-    <!-- <script type="text/javascript">
-        function htmlDecode(input) {
-            var doc = new DOMParser().parseFromString(input, "text/html");
-            return doc.documentElement.textContent;
-        }
-
-        const exemplo = document.getElementById("exemplo");
-        exemplo.innerHTML = htmlDecode("{{ tabela }}").replace("b'", "");
-        function formatarTabela() {
-            window.onload = () => {
-                document.querySelector('.dataframe').classList.add("table");
-                document.querySelector('.dataframe').classList.add("table-bordered");
-                document.querySelector('.dataframe').classList.add("centered");
-                document.querySelector('.dataframe').classList.add("table-hover");
-                document.querySelector(".dataframe").classList.add("table-responsive-sm");
-            }
-        }
-    </script> -->
-
-
-
-
 
 
     {% endblock content %}
