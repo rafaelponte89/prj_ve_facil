@@ -10,7 +10,7 @@ function agrupar(agrupa) {
             if (agrupa[i].checked) {
                 agrupa[i].checked = true;
 
-                // console.log("check");
+                console.log("check");
                 ls_agrupa.push(agrupa[i].value)
 
             }
@@ -19,9 +19,9 @@ function agrupar(agrupa) {
                 let pos = ls_agrupa.indexOf(agrupa[i].value)
                 console.log(pos);
                 ls_agrupa.splice(pos, 1);
-                // console.log("uncheck");
+                console.log("uncheck");
             }
-            // console.log(ls_agrupa);
+           
         });
     }
     return ls_agrupa;

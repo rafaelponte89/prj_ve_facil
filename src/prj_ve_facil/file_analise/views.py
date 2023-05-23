@@ -76,29 +76,33 @@ def analisar(request, arquivo,cod=1):
         for i in range(len(colunas)):
             colunas_tipos[colunas[i]] = tipos[i]
             
-      
+
         if is_ajax:
             if request.method == 'GET':
                 
                 cols = request.GET.getlist("ls_col[]")
                 dataframe = dataframe[cols]
                 param = request.GET.getlist("ls_param[]")
+                comparadores = request.GET.getlist("ls_comparadores[]")
                 query = ''
-                print("Parametros", param)
+                print("Parametros: ", param)
+                print("Comparadores: ", comparadores )
+                
+                # cria query
                 for i in range(len(param)) :
                 
-                    if param[i] != '' and i > 0 and i < len(param)-1:
-                        query = query + ' ' + cols[i] + ' == "' + param[i] + '" &'
-                    elif param[i] != '':
-                        query = query + ' ' + cols[i] + ' == "' + param[i] + '" '
+                    if param[i] != '' and param[i] != '""' and comparadores[i] != '' :
+                        query = query + f'{cols[i]} {comparadores[i]} {param[i]} & '
                         
-                #     query = 'coluna1 =="parametro1" & coluna2 == "parametro2"' 
+    
+                query = query.strip('& ')
+                print("Query: ",query)
+                
                
-                # 10/05/2023 bug na manipulação de colunas, elas precisam 
                 if len(query): 
                         dataframe = dataframe.query(query)
-                        print("Qurey: ", query)
                         print("Dataframe: ", dataframe)   
+                        
                 if cod == 1:
                     
                     agrupar = request.GET.getlist("ls_agrupar[]")
@@ -114,7 +118,9 @@ def analisar(request, arquivo,cod=1):
                 else:
                     dataframe = dataframe.head(30)
                     tabela = dataframe.to_html()
-                    
+                
+                
+
                 return JsonResponse(tabela, safe=False)
       
             

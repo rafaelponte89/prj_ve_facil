@@ -43,6 +43,9 @@
 
     </div>
 </div>
+<script type="text/javascript">
+    var ls_tipos = [];
+</script>
 
 <div class="row">
     <div class="col-12">
@@ -53,6 +56,7 @@
                     <tr>
                         <th>Colunas</th>
                         <th>Parâmetro</th>
+                        <th>Comparador</th>
                         <th>Tipo</th>
                         <th>Agrupar</th>
                     </tr>
@@ -64,8 +68,25 @@
                             <label class="btn btn-outline-secondary" for="{{c}}">{{c}}</label><br>
 
                         </td>
-                        <td> <input type="text" class="parametro" id="param{{c}}" name="param{{c}}" size=10 maxlength=30
-                                disabled></td>
+                        <td>
+                             <input type="text" class="parametro" id="param{{c}}" name="param{{c}}" size=10 maxlength=30
+                                disabled>
+                        </td>
+                        <td>
+                            <select id="comparador{{c}}" class="comparador" disabled>
+                                <option value=""></option>
+                                <option value="==">==</option>
+                                <option value="!=">!=</option>
+                                {% if t == 'int64' or t == 'float64' %}
+                                <option value="&gt;">&gt;</option>
+                                <option value="&lt;">&lt;</option>
+                                <option value="&gt;=">&ge;</option>
+                                <option value="&lt;=">&le;</option>
+                                {%endif%}
+
+
+                            </select>
+                        </td>
                         <td>
                             <option value="" selected>{{t}}</option>
                         </td>
@@ -77,7 +98,10 @@
                         </td>
 
                     </tr>
+                    <script type="text/javascript">
+                        ls_tipos.push("{{t}}");
 
+                    </script>
                     {% endfor %}
 
                 </table>
@@ -96,9 +120,27 @@
 
 
 <script type="text/javascript">
-
+    console.log(ls_tipos)
     const agrupa = document.getElementsByClassName("agrupa");
-    ls_agrupa = agrupar(agrupa);
+    var ls_agrupa = [];
+    for (let i = 0; i < agrupa.length; i++) {
+        agrupa[i].addEventListener('change', function () {
+            if (agrupa[i].checked) {
+                agrupa[i].checked = true;
+
+                ls_agrupa.push(agrupa[i].value)
+
+            }
+            else {
+                agrupa[i].checked = false;
+                let pos = ls_agrupa.indexOf(agrupa[i].value)
+                console.log(pos);
+                ls_agrupa.splice(pos, 1);
+            }
+           console.log(ls_agrupa);
+        });
+    }
+    
     //Definindo parâmetros...16/04/2023
     // ls_col = selecionarColunas();
     var ls_col = [];
@@ -111,7 +153,7 @@
 
                 $("#param" + selcol[i].value).attr('disabled', false);
                 $("#ag" + selcol[i].value).attr('disabled', false);
-
+                $("#comparador" + selcol[i].value).attr('disabled',false);
                 ls_col.push(selcol[i].value)
 
             }
@@ -126,15 +168,22 @@
                 $("#ag" + selcol[i].value).prop('checked', false);
                 $("#ag" + selcol[i].value).attr('disabled', true);
 
+                // Comparadores
+                $("#comparador" + selcol[i].value).attr('disabled',true);
+                var e = document.getElementById("comparador" + selcol[i].value);
+                e.value = "";
 
                 selcol[i].checked = false;
                 let pos = ls_col.indexOf(selcol[i].value)
+                let posAgrupa = ls_agrupa.indexOf(selcol[i].value)
                 console.log(pos);
                 ls_col.splice(pos, 1);
+                ls_agrupa.splice(posAgrupa, 1);
                 // console.log("uncheck");
             }
-            // console.log(ls_col);
+            console.log(ls_col);
         });
+        
     }
 
     // const selop = document.getElementsByClassName("operacao");
@@ -163,14 +212,27 @@
 
     var ls_param = [];
     var ls_col_param = [];
+    var ls_comparadores = [];
+    //Na ordem que aparece 
     document.getElementById('btnaplicar').addEventListener('click', function () {
         ls_param = [];
         ls_col_param = [];
+        ls_comparadores = [];
+        cols_comparador = document.getElementsByClassName("comparador");
         cols_param = document.getElementsByClassName('parametro');
         for (let i = 0; i < cols_param.length; i++) {
             if (cols_param[i].getAttribute("disabled") == null) {
-                ls_param.push(cols_param[i].value);
+
+                if(ls_tipos[i] == "object"){
+                    ls_param.push('"'+cols_param[i].value + '"');
+                }
+                else {
+                    ls_param.push(cols_param[i].value);
+
+                }
+                
                 ls_col_param.push(selcol[i].value);
+                ls_comparadores.push(cols_comparador[i].value);
             }
             else {
 
@@ -219,7 +281,8 @@
                 "ls_agrupar": ls_agrupa,
                 "ls_col": ls_col_param,
                 "sel_op": op,
-                "ls_param": ls_param
+                "ls_param": ls_param,
+                "ls_comparadores": ls_comparadores
 
 
             },
@@ -236,8 +299,8 @@
 
                     }
                 }
-                console.log(x);
-                console.log(y);
+                // console.log(x);
+                // console.log(y);
 
                 var chartExist = Chart.getChart("myChart");
                 if (chartExist != undefined)
